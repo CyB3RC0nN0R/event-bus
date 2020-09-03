@@ -76,7 +76,7 @@ public final class EventBus {
 			@SuppressWarnings("unchecked")
 			var realParam = (Class<? extends IEvent>) param;
 			if (!bindings.containsKey(realParam))
-				bindings.put(realParam, new HashSet<>());
+				bindings.put(realParam, new TreeSet<>());
 
 			bindings.get(realParam).add(new EventHandler(listener, method, annotation));
 		}
