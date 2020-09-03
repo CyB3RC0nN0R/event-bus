@@ -32,12 +32,14 @@ final class EventHandler implements Comparable<EventHandler> {
 	/**
 	 * Compares this to another event handler based on {@link Event#priority()}. In case of equal
 	 * priority a non-zero value based on hash codes is returned.
+	 * <p>
+	 * This is used to retrieve event handlers in the correct order from a tree set.
 	 *
 	 * @since 0.0.1
 	 */
 	@Override
 	public int compareTo(EventHandler other) {
-		int priority = annotation.priority() - other.annotation.priority();
+		int priority = other.annotation.priority() - annotation.priority();
 		if (priority == 0)
 			priority = listener.hashCode() - other.listener.hashCode();
 		return priority == 0 ? hashCode() - other.hashCode() : priority;
