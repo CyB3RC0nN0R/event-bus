@@ -17,7 +17,7 @@
 			<url>http://www.opensource.org/licenses/mit-license.php</url>
 		</license>
 	</licenses>
-	
+
 	<developers>
 		<developer>
 			<id>kske</id>
@@ -31,7 +31,7 @@
 			<timezone>Europe/Berlin</timezone>
 		</developer>
 	</developers>
-	
+
 	<scm>
 		<connection>scm:git:https://git.kske.dev/zdm/event-bus.git</connection>
 		<developerConnection>scm:git:ssh:git@git.kske.dev:zdm/event-bus.git</developerConnection>
@@ -47,6 +47,32 @@
 	<build>
 		<resources />
 		<testResources />
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>attach-javadocs</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
 	</build>
 
 	<dependencies>
