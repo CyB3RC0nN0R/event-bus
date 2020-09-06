@@ -5,7 +5,7 @@
 
 	<groupId>dev.kske</groupId>
 	<artifactId>event-bus</artifactId>
-	<version>0.0.1</version>
+	<version>0.0.2</version>
 
 	<name>Event Bus</name>
 	<description>An event handling framework for Java utilizing annotations.</description>

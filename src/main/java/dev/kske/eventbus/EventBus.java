@@ -6,6 +6,9 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Event listeners can be registered at an event bus to be notified when an event is dispatched.
  * <p>
+ * A singleton instance of this class can be lazily created and acquired using the
+ * {@link EventBus#getInstance()} method.
+ * <p>
  * This is a thread-safe implementation.
  *
  * @author Kai S. K. Engelbart
@@ -13,6 +16,20 @@ import java.util.concurrent.ConcurrentHashMap;
  * @see Event
  */
 public final class EventBus {
+
+	private static EventBus singletonInstance;
+
+	/**
+	 * Produces a singleton instance of the event bus. It is lazily initialized on the first call.
+	 *
+	 * @return a singleton instance of the event bus.
+	 * @since 0.0.2
+	 */
+	public static EventBus getInstance() {
+		if (singletonInstance == null)
+			singletonInstance = new EventBus();
+		return singletonInstance;
+	}
 
 	private final Map<Class<? extends IEvent>, Collection<EventHandler>> bindings
 		= new ConcurrentHashMap<>();
