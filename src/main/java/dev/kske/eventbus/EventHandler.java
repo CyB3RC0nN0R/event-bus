@@ -27,6 +27,7 @@ final class EventHandler implements Comparable<EventHandler> {
 		this.listener = listener;
 		this.method = method;
 		this.annotation = annotation;
+		method.setAccessible(true);
 	}
 
 	/**

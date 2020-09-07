@@ -26,13 +26,13 @@ class EventBusTest implements EventListener {
 	}
 
 	@Event(priority = 50)
-	public void onSimpleEventSecond(SimpleEvent event) {
+	private void onSimpleEventSecond(SimpleEvent event) {
 		++hits;
 		assertEquals(2, hits);
 	}
 
 	@Event(priority = 150)
-	public void onSimpleEventFirst(SimpleEvent event) {
+	private void onSimpleEventFirst(SimpleEvent event) {
 		++hits;
 		assertEquals(1, hits);
 	}
