@@ -5,7 +5,7 @@
 
 	<groupId>dev.kske</groupId>
 	<artifactId>event-bus</artifactId>
-	<version>0.0.2</version>
+	<version>0.0.3</version>
 
 	<name>Event Bus</name>
 	<description>An event handling framework for Java utilizing annotations.</description>
@@ -45,9 +45,21 @@
 	</properties>
 
 	<build>
+
+		<!-- Disable resource folders -->
 		<resources />
 		<testResources />
+
 		<plugins>
+
+			<!-- Support Java 9 modules -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.8.1</version>
+			</plugin>
+
+			<!-- Attach sources and Javadoc to JAR -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
@@ -72,6 +84,7 @@
 					</execution>
 				</executions>
 			</plugin>
+
 		</plugins>
 	</build>
 
