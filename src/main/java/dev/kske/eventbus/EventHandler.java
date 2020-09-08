@@ -2,6 +2,8 @@ package dev.kske.eventbus;
 
 import java.lang.reflect.*;
 
+import dev.kske.eventbus.Event.USE_PARAMETER;
+
 /**
  * Internal representation of an event handling method.
  *
@@ -14,6 +16,7 @@ final class EventHandler implements Comparable<EventHandler> {
 	private final EventListener listener;
 	private final Method method;
 	private final Event annotation;
+	private final Class<? extends IEvent> eventType;
 
 	/**
 	 * Constructs an event handler.
@@ -21,12 +24,40 @@ final class EventHandler implements Comparable<EventHandler> {
 	 * @param listener   the listener containing the handler
 	 * @param method     the handler method
 	 * @param annotation the event annotation
+	 * @throws EventBusException if the method or the annotation do not comply with the
+	 *                           specification
 	 * @since 0.0.1
 	 */
-	EventHandler(EventListener listener, Method method, Event annotation) {
+	@SuppressWarnings("unchecked")
+	EventHandler(EventListener listener, Method method, Event annotation) throws EventBusException {
 		this.listener = listener;
 		this.method = method;
 		this.annotation = annotation;
+
+		// Check for correct method signature and return type
+		if (method.getParameterCount() == 0 && annotation.eventType().equals(USE_PARAMETER.class))
+			throw new EventBusException(method + " does not define an event type!");
+
+		if (method.getParameterCount() == 1 && !annotation.eventType().equals(USE_PARAMETER.class))
+			throw new EventBusException(method + " defines an ambiguous event type!");
+
+		if (method.getParameterCount() > 1)
+			throw new EventBusException(method + " defines more than one parameter!");
+
+		if (!method.getReturnType().equals(void.class))
+			throw new EventBusException(method + " does not have a return type of void!");
+
+		// Determine the event type
+		Class<? extends IEvent> eventType = annotation.eventType();
+		if (eventType.equals(USE_PARAMETER.class)) {
+			var param = method.getParameterTypes()[0];
+			if (!IEvent.class.isAssignableFrom(param))
+				throw new EventBusException(param + " is not of type IEvent!");
+			eventType = (Class<? extends IEvent>) param;
+		}
+		this.eventType = eventType;
+
+		// Allow access if the method is non-public
 		method.setAccessible(true);
 	}
 
@@ -55,7 +86,10 @@ final class EventHandler implements Comparable<EventHandler> {
 	 */
 	void execute(IEvent event) throws EventBusException {
 		try {
-			method.invoke(listener, event);
+			if (annotation.eventType().equals(USE_PARAMETER.class))
+				method.invoke(listener, event);
+			else
+				method.invoke(listener);
 		} catch (
 			IllegalAccessException
 			| IllegalArgumentException
@@ -82,4 +116,10 @@ final class EventHandler implements Comparable<EventHandler> {
 	 * @since 0.0.1
 	 */
 	int getPriority() { return annotation.priority(); }
+
+	/**
+	 * @return the event type this handler listens to
+	 * @since 0.0.3
+	 */
+	Class<? extends IEvent> getEventType() { return eventType; }
 }

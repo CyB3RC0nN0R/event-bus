@@ -30,8 +30,8 @@ class EventBusTest implements EventListener {
 		assertEquals(2, hits);
 	}
 
-	@Event(priority = 150)
-	private void onSimpleEventFirst(SimpleEvent event) {
+	@Event(eventType = SimpleEvent.class, priority = 150)
+	private void onSimpleEventFirst() {
 		++hits;
 		assertEquals(1, hits);
 	}

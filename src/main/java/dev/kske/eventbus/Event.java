@@ -10,7 +10,11 @@ import java.lang.annotation.*;
  * comply with the following specifications:
  * <ul>
  * <li>Declared inside a class that implements {@link EventListener}</li>
- * <li>One parameter of a type that implements {@link IEvent}</li>
+ * <li>Specifying an event type by either</li>
+ * <ul>
+ * <li>Declaring one parameter of a type that implements {@link IEvent}</li>
+ * <li>Defining the class of the event using the {@link Event#eventType()} value</li>
+ * </ul>
  * <li>Return type of {@code void}</li>
  * </ul>
  *
@@ -31,4 +35,22 @@ public @interface Event {
 	 * @since 0.0.1
 	 */
 	int priority() default 100;
+
+	/**
+	 * Defines the event type the handler listens to. If this value is set, the handler is not
+	 * allowed to declare parameters.
+	 * <p>
+	 * This is useful when the event handler does not utilize the event instance.
+	 *
+	 * @since 0.0.3
+	 */
+	Class<? extends IEvent> eventType() default USE_PARAMETER.class;
+
+	/**
+	 * Signifies that the event type the handler listens to is determined by the type of its only
+	 * parameter.
+	 *
+	 * @since 0.0.3
+	 */
+	static final class USE_PARAMETER implements IEvent {}
 }

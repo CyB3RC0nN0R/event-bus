@@ -12,6 +12,7 @@ In addition, a singleton instance of the event bus is provided by the `EventBus#
 
 To listen to events, register event handling methods using the `Event` annotation.
 For this to work, the method must have a return type of `void` and declare a single parameter of the desired event type.
+Alternatively, a parameter-less event handler can be declared as shown [below](#parameter-less-event-handlers).
 Additionally, the class containing the method must implement the `EventListener` interface.
 
 ## A Simple Example
@@ -47,7 +48,22 @@ public class SimpleEventListener implements EventListener {
 }
 ```
 
-In this case, an event bus is created and used locally. In a more sophisticated example the class would acquire an external event bus that is used by multiple classes.
+In this case, an event bus is created and used locally.
+In a more sophisticated example the class would acquire an external event bus that is used by multiple classes.
+
+## Parameter-less event handlers
+
+In some cases an event handler is not interested in the dispatched event instance.
+To avoid declaring a useless parameter just to specify the event type of the handler, there is an alternative:
+
+```java
+@Event(eventType = SimpleEvent.class)
+private void onSimpleEvent() {
+	System.out.println("SimpleEvent received!");
+}
+```
+
+Make sure that you **do not** declare both a parameter and the `eventType` value of the annotation, as this would be ambiguous.
 
 ## Installation
 
@@ -66,7 +82,7 @@ To include it inside your project, just add the Maven repository and the depende
     <dependency>
         <groupId>dev.kske</groupId>
         <artifactId>event-bus</artifactId>
-        <version>0.0.2</version>
+        <version>0.0.3</version>
     </dependency>
 </dependencies>
 ```

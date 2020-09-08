@@ -43,6 +43,7 @@ public final class EventBus {
 	 * @since 0.0.1
 	 */
 	public void dispatch(IEvent event) {
+		Objects.requireNonNull(event);
 		getHandlersFor(event.getClass()).forEach(handler -> handler.execute(event));
 	}
 
@@ -63,11 +64,12 @@ public final class EventBus {
 	 *
 	 * @param listener the listener to register
 	 * @throws EventBusException if the listener is already registered or a declared event handler
-	 *                           does not comply to the specification
+	 *                           does not comply with the specification
 	 * @since 0.0.1
 	 * @see Event
 	 */
 	public void registerListener(EventListener listener) throws EventBusException {
+		Objects.requireNonNull(listener);
 		if (registeredListeners.contains(listener))
 			throw new EventBusException(listener + " already registered!");
 
@@ -79,23 +81,12 @@ public final class EventBus {
 			if (annotation == null)
 				continue;
 
-			// Check for correct method signature and return type
-			if (method.getParameterCount() != 1)
-				throw new EventBusException(method + " does not have an argument count of 1!");
-
-			if (!method.getReturnType().equals(void.class))
-				throw new EventBusException(method + " does not have a return type of void!");
-
-			var param = method.getParameterTypes()[0];
-			if (!IEvent.class.isAssignableFrom(param))
-				throw new EventBusException(param + " is not of type IEvent!");
-
-			@SuppressWarnings("unchecked")
-			var realParam = (Class<? extends IEvent>) param;
-			if (!bindings.containsKey(realParam))
-				bindings.put(realParam, new TreeSet<>());
-
-			bindings.get(realParam).add(new EventHandler(listener, method, annotation));
+			// Initialize and bind the handler
+			var handler = new EventHandler(listener, method, annotation);
+			if (!bindings.containsKey(handler.getEventType()))
+				bindings.put(handler.getEventType(), new TreeSet<>());
+			bindings.get(handler.getEventType())
+				.add(handler);
 		}
 	}
 
@@ -106,6 +97,7 @@ public final class EventBus {
 	 * @since 0.0.1
 	 */
 	public void removeListener(EventListener listener) {
+		Objects.requireNonNull(listener);
 		for (var binding : bindings.values()) {
 			var it = binding.iterator();
 			while (it.hasNext())
