@@ -8,6 +8,8 @@ Any class can be made an event by implementing the `IEvent` interface.
 Using an instance of the `EventBus` class, an instant of the event class can be dispatched.
 This means that it will be forwarded to all listeners registered for it at the event bus.
 
+In addition, a singleton instance of the event bus is provided by the `EventBus#getInstance()` method.
+
 To listen to events, register event handling methods using the `Event` annotation.
 For this to work, the method must have a return type of `void` and declare a single parameter of the desired event type.
 Additionally, the class containing the method must implement the `EventListener` interface.
@@ -30,13 +32,12 @@ import dev.kske.eventbus.*;
 public class SimpleEventListener implements EventListener {
 
     public SimpleEventListener() {
-        EventBus eventBus = new EventBus();
 
         // Register this listener at the event bus
-        eventBus.register(this);
+        EventBus.getInstance().register(this);
 
         // Dispatch a SimpleEvent
-        eventBus.dispatch(new SimpleEvent());
+        EventBus.getInstance().dispatch(new SimpleEvent());
     }
 
     @Event
@@ -65,7 +66,7 @@ To include it inside your project, just add the Maven repository and the depende
     <dependency>
         <groupId>dev.kske</groupId>
         <artifactId>event-bus</artifactId>
-        <version>0.0.1</version>
+        <version>0.0.2</version>
     </dependency>
 </dependencies>
 ```

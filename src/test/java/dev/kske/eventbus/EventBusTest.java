@@ -12,17 +12,16 @@ import org.junit.jupiter.api.*;
  */
 class EventBusTest implements EventListener {
 
-	public EventBus eventBus = new EventBus();
 	int hits;
 
 	@BeforeEach
 	public void registerListener() {
-		eventBus.registerListener(this);
+		EventBus.getInstance().registerListener(this);
 	}
 
 	@Test
 	void testDispatch() {
-		eventBus.dispatch(new SimpleEvent());
+		EventBus.getInstance().dispatch(new SimpleEvent());
 	}
 
 	@Event(priority = 50)
