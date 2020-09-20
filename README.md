@@ -60,6 +60,23 @@ To include subtypes for an event handler, use the `includeSubtypes` parameter as
 @Event(includeSubtypes = true)
 ```
 
+## Event handler execution order
+
+Sometimes when using multiple handlers for one event, it might be useful to know in which order they will be executed.
+Event Bus provides a mechanism to ensure the correct propagation of events: the `priority`.
+
+Priority can be set on the `@Event` annotation like that:
+```java
+@Event(priority=100)
+```
+
+The default priority for events is `100`.
+
+**Important:**
+Events are dispatched top-down, meaning the event handler with the highest priority will be executed first.
+
+If no priority is set or multiple handlers have the same priority, the order of execution is undefined.
+
 ## Parameter-less event handlers
 
 In some cases an event handler is not interested in the dispatched event instance.
