@@ -118,6 +118,12 @@ final class EventHandler implements Comparable<EventHandler> {
 	int getPriority() { return annotation.priority(); }
 
 	/**
+	 * @return whether this handler includes subtypes
+	 * @since 0.0.4
+	 */
+	boolean includeSubtypes() { return annotation.includeSubtypes(); }
+
+	/**
 	 * @return the event type this handler listens to
 	 * @since 0.0.3
 	 */

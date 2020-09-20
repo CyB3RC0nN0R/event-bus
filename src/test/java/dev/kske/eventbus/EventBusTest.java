@@ -1,6 +1,6 @@
 package dev.kske.eventbus;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.*;
 
@@ -21,18 +21,29 @@ class EventBusTest implements EventListener {
 
 	@Test
 	void testDispatch() {
+		EventBus.getInstance().dispatch(new SimpleEventSub());
 		EventBus.getInstance().dispatch(new SimpleEvent());
 	}
 
-	@Event(priority = 50)
-	private void onSimpleEventSecond(SimpleEvent event) {
+	@Event(
+		eventType = SimpleEvent.class,
+		includeSubtypes = true,
+		priority = 200
+	)
+	private void onSimpleEventFirst() {
 		++hits;
-		assertEquals(2, hits);
+		assertTrue(hits == 1 || hits == 2);
 	}
 
 	@Event(eventType = SimpleEvent.class, priority = 150)
-	private void onSimpleEventFirst() {
+	private void onSimpleEventSecond() {
 		++hits;
-		assertEquals(1, hits);
+		assertEquals(3, hits);
+	}
+
+	@Event(priority = 50)
+	private void onSimpleEventThird(SimpleEvent event) {
+		++hits;
+		assertEquals(4, hits);
 	}
 }

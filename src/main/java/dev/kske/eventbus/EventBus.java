@@ -31,7 +31,7 @@ public final class EventBus {
 		return singletonInstance;
 	}
 
-	private final Map<Class<? extends IEvent>, Collection<EventHandler>> bindings
+	private final Map<Class<? extends IEvent>, TreeSet<EventHandler>> bindings
 		= new ConcurrentHashMap<>();
 	private final Set<EventListener> registeredListeners = ConcurrentHashMap.newKeySet();
 
@@ -55,8 +55,20 @@ public final class EventBus {
 	 * @since 0.0.1
 	 */
 	private List<EventHandler> getHandlersFor(Class<? extends IEvent> eventClass) {
-		return bindings.containsKey(eventClass) ? new ArrayList<>(bindings.get(eventClass))
-			: new ArrayList<>();
+
+		// Get handlers defined for the event class
+		Set<EventHandler> handlers
+			= bindings.containsKey(eventClass) ? bindings.get(eventClass)
+				: new TreeSet<>();
+
+		// Get subtype handlers
+		for (var binding : bindings.entrySet())
+			if (binding.getKey().isAssignableFrom(eventClass))
+				for (var handler : binding.getValue())
+					if (handler.includeSubtypes())
+						handlers.add(handler);
+
+		return new ArrayList<>(handlers);
 	}
 
 	/**

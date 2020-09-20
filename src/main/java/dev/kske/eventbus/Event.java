@@ -37,6 +37,13 @@ public @interface Event {
 	int priority() default 100;
 
 	/**
+	 * Defines whether instances of subtypes of the event type are dispatched to the event handler.
+	 *
+	 * @since 0.0.4
+	 */
+	boolean includeSubtypes() default false;
+
+	/**
 	 * Defines the event type the handler listens to. If this value is set, the handler is not
 	 * allowed to declare parameters.
 	 * <p>

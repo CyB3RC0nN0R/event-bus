@@ -51,6 +51,15 @@ public class SimpleEventListener implements EventListener {
 In this case, an event bus is created and used locally.
 In a more sophisticated example the class would acquire an external event bus that is used by multiple classes.
 
+## Event handlers for subtypes
+
+On certain occasions its practical for an event handler to accept both events of the specified type, as well as subclasses of that event.
+To include subtypes for an event handler, use the `includeSubtypes` parameter as follows:
+
+```java
+@Event(includeSubtypes = true)
+```
+
 ## Parameter-less event handlers
 
 In some cases an event handler is not interested in the dispatched event instance.
@@ -82,7 +91,7 @@ To include it inside your project, just add the Maven repository and the depende
     <dependency>
         <groupId>dev.kske</groupId>
         <artifactId>event-bus</artifactId>
-        <version>0.0.3</version>
+        <version>0.0.4</version>
     </dependency>
 </dependencies>
 ```
