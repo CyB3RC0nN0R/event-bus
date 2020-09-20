@@ -10,11 +10,12 @@ import java.lang.annotation.*;
  * comply with the following specifications:
  * <ul>
  * <li>Declared inside a class that implements {@link EventListener}</li>
- * <li>Specifying an event type by either</li>
+ * <li>Specifying an event type by either
  * <ul>
  * <li>Declaring one parameter of a type that implements {@link IEvent}</li>
  * <li>Defining the class of the event using the {@link Event#eventType()} value</li>
  * </ul>
+ * </li>
  * <li>Return type of {@code void}</li>
  * </ul>
  *
@@ -32,6 +33,7 @@ public @interface Event {
 	 * <p>
 	 * The execution order of handlers with the same priority is undefined.
 	 *
+	 * @return the priority of the event handler
 	 * @since 0.0.1
 	 */
 	int priority() default 100;
@@ -39,6 +41,7 @@ public @interface Event {
 	/**
 	 * Defines whether instances of subtypes of the event type are dispatched to the event handler.
 	 *
+	 * @return whether the event handler includes subtypes
 	 * @since 0.0.4
 	 */
 	boolean includeSubtypes() default false;
@@ -49,6 +52,7 @@ public @interface Event {
 	 * <p>
 	 * This is useful when the event handler does not utilize the event instance.
 	 *
+	 * @return the event type accepted by the handler
 	 * @since 0.0.3
 	 */
 	Class<? extends IEvent> eventType() default USE_PARAMETER.class;
