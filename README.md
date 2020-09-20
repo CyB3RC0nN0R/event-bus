@@ -108,7 +108,7 @@ To include it inside your project, just add the Maven repository and the depende
     <dependency>
         <groupId>dev.kske</groupId>
         <artifactId>event-bus</artifactId>
-        <version>0.0.4</version>
+        <version>0.1.0</version>
     </dependency>
 </dependencies>
 ```

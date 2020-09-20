@@ -1,5 +1,7 @@
 package dev.kske.eventbus;
 
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -19,6 +21,8 @@ public final class EventBus {
 
 	private static EventBus singletonInstance;
 
+	private static final Logger logger = System.getLogger(EventBus.class.getName());
+
 	/**
 	 * Produces a singleton instance of the event bus. It is lazily initialized on the first call.
 	 *
@@ -26,8 +30,10 @@ public final class EventBus {
 	 * @since 0.0.2
 	 */
 	public static EventBus getInstance() {
-		if (singletonInstance == null)
+		if (singletonInstance == null) {
+			logger.log(Level.DEBUG, "Initializing singleton event bus instance");
 			singletonInstance = new EventBus();
+		}
 		return singletonInstance;
 	}
 
@@ -44,6 +50,7 @@ public final class EventBus {
 	 */
 	public void dispatch(IEvent event) {
 		Objects.requireNonNull(event);
+		logger.log(Level.INFO, "Dispatching event {0}", event);
 		getHandlersFor(event.getClass()).forEach(handler -> handler.execute(event));
 	}
 
@@ -84,6 +91,8 @@ public final class EventBus {
 		Objects.requireNonNull(listener);
 		if (registeredListeners.contains(listener))
 			throw new EventBusException(listener + " already registered!");
+		logger.log(Level.INFO, "Registering event listener {0}", listener.getClass().getName());
+		boolean handlerBound = false;
 
 		registeredListeners.add(listener);
 		for (var method : listener.getClass().getDeclaredMethods()) {
@@ -97,9 +106,18 @@ public final class EventBus {
 			var handler = new EventHandler(listener, method, annotation);
 			if (!bindings.containsKey(handler.getEventType()))
 				bindings.put(handler.getEventType(), new TreeSet<>());
+			logger.log(Level.DEBUG, "Binding event handler {0}", handler);
 			bindings.get(handler.getEventType())
 				.add(handler);
+			handlerBound = true;
 		}
+
+		if(!handlerBound)
+			logger.log(
+				Level.WARNING,
+				"No event handlers bound for event listener {0}",
+				listener.getClass().getName()
+			);
 	}
 
 	/**
@@ -110,11 +128,17 @@ public final class EventBus {
 	 */
 	public void removeListener(EventListener listener) {
 		Objects.requireNonNull(listener);
+		logger.log(Level.INFO, "Removing event listener {0}", listener.getClass().getName());
+
 		for (var binding : bindings.values()) {
 			var it = binding.iterator();
-			while (it.hasNext())
-				if (it.next().getListener() == listener)
+			while (it.hasNext()) {
+				var handler = it.next();
+				if (handler.getListener() == listener) {
+					logger.log(Level.DEBUG, "Unbinding event handler {0}", handler);
 					it.remove();
+				}
+			}
 		}
 		registeredListeners.remove(listener);
 	}
@@ -125,6 +149,7 @@ public final class EventBus {
 	 * @since 0.0.1
 	 */
 	public void clearListeners() {
+		logger.log(Level.INFO, "Clearing event listeners");
 		bindings.clear();
 		registeredListeners.clear();
 	}

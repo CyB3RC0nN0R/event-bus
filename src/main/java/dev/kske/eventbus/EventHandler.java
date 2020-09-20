@@ -77,6 +77,11 @@ final class EventHandler implements Comparable<EventHandler> {
 		return priority == 0 ? hashCode() - other.hashCode() : priority;
 	}
 
+	@Override
+	public String toString() {
+		return String.format("EventHandler[method=%s, annotation=%s]", method, annotation);
+	}
+
 	/**
 	 * Executes the event handler.
 	 *
