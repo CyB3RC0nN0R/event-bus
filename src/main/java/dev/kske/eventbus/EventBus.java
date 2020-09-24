@@ -19,7 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public final class EventBus {
 
-	private static EventBus singletonInstance;
+	private static volatile EventBus singletonInstance;
 
 	private static final Logger logger = System.getLogger(EventBus.class.getName());
 
@@ -30,11 +30,15 @@ public final class EventBus {
 	 * @since 0.0.2
 	 */
 	public static EventBus getInstance() {
-		if (singletonInstance == null) {
-			logger.log(Level.DEBUG, "Initializing singleton event bus instance");
-			singletonInstance = new EventBus();
-		}
-		return singletonInstance;
+		EventBus instance = singletonInstance;
+		if (instance == null)
+			synchronized (EventBus.class) {
+				if ((instance = singletonInstance) == null) {
+					logger.log(Level.DEBUG, "Initializing singleton event bus instance");
+					instance = singletonInstance = new EventBus();
+				}
+			}
+		return instance;
 	}
 
 	private final Map<Class<? extends IEvent>, TreeSet<EventHandler>> bindings
