@@ -12,7 +12,7 @@ import org.junit.jupiter.api.*;
  */
 class EventBusTest implements EventListener {
 
-	int hits;
+	static int hits;
 
 	@BeforeEach
 	public void registerListener() {
@@ -36,7 +36,7 @@ class EventBusTest implements EventListener {
 	}
 
 	@Event(eventType = SimpleEvent.class, priority = 150)
-	private void onSimpleEventSecond() {
+	private static void onSimpleEventSecond() {
 		++hits;
 		assertEquals(3, hits);
 	}
