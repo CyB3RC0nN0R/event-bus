@@ -19,6 +19,16 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public final class EventBus {
 
+	/**
+	 * Holds the state of the dispatching process on one thread.
+	 *
+	 * @since 0.1.0
+	 */
+	private static final class DispatchState {
+
+		boolean isDispatching, isCancelled;
+	}
+
 	private static volatile EventBus singletonInstance;
 
 	private static final Logger logger = System.getLogger(EventBus.class.getName());
@@ -44,6 +54,8 @@ public final class EventBus {
 	private final Map<Class<? extends IEvent>, TreeSet<EventHandler>> bindings
 		= new ConcurrentHashMap<>();
 	private final Set<EventListener> registeredListeners = ConcurrentHashMap.newKeySet();
+	private final ThreadLocal<DispatchState> dispatchState
+		= ThreadLocal.withInitial(DispatchState::new);
 
 	/**
 	 * Dispatches an event to all event handlers registered for it in descending order of their
@@ -55,7 +67,24 @@ public final class EventBus {
 	public void dispatch(IEvent event) {
 		Objects.requireNonNull(event);
 		logger.log(Level.INFO, "Dispatching event {0}", event);
-		getHandlersFor(event.getClass()).forEach(handler -> handler.execute(event));
+
+		// Set dispatch state
+		var state = dispatchState.get();
+		state.isDispatching = true;
+
+		for (var handler : getHandlersFor(event.getClass()))
+			if (state.isCancelled) {
+				logger.log(Level.INFO, "Cancelled dispatching event {0}", event);
+				state.isCancelled = false;
+				break;
+			} else {
+				handler.execute(event);
+			}
+
+		// Reset dispatch state
+		state.isDispatching = false;
+
+		logger.log(Level.DEBUG, "Finished dispatching event {0}", event);
 	}
 
 	/**
@@ -80,6 +109,20 @@ public final class EventBus {
 						handlers.add(handler);
 
 		return new ArrayList<>(handlers);
+	}
+
+	/**
+	 * Cancels an event that is currently dispatched from inside an event handler.
+	 *
+	 * @throws EventBusException if the calling thread is not an active dispatching thread
+	 * @since 0.1.0
+	 */
+	public void cancel() {
+		var state = dispatchState.get();
+		if (state.isDispatching && !state.isCancelled)
+			state.isCancelled = true;
+		else
+			throw new EventBusException("Calling thread not an active dispatching thread!");
 	}
 
 	/**
