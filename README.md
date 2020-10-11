@@ -91,6 +91,30 @@ private void onSimpleEvent() {
 
 Make sure that you **do not** declare both a parameter and the `eventType` value of the annotation, as this would be ambiguous.
 
+## Event consumption
+
+There are cases when it would be useful to stop event propagation after a certain condition has been fulfilled.
+Event Bus provides a mechanism to consume events:
+
+```java
+@Event(eventType = SimpleEvent.class, priority=1000)
+private void onSimpleEvent() {
+	EventBus.getInstance().cancel();
+}
+
+@Event(eventType = SimpleEvent.class, priority=900)
+private void onSimpleEvent2() {
+	System.out.println("Will not be printed!");
+}
+```
+
+In this example, the second method will not be executed as the event will no longer be forwarded.
+Any event handler with a lower priority than the one canceling it will not get executed.
+
+**Important:**
+Please avoid cancelling events when (multiple) event handlers have the same priority as the one cancelling it:
+It is undefined whether those will be executed or not.
+
 ## Installation
 
 Event Bus is currently hosted at [kske.dev](https://kske.dev).
