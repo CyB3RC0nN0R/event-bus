@@ -12,8 +12,7 @@ import org.junit.jupiter.api.*;
  */
 class EventBusTest implements EventListener {
 
-	int			hits;
-	static int	canceledHits;
+	int hits, cancelledHits;
 
 	@BeforeEach
 	public void registerListener() {
@@ -28,10 +27,8 @@ class EventBusTest implements EventListener {
 
 	@Test
 	void testCancellation() {
-		var test2 = new EventBusTest();
-		test2.registerListener();
 		EventBus.getInstance().dispatch(new SimpleCancelEvent());
-		assertTrue(canceledHits == 1);
+		assertTrue(cancelledHits == 1);
 	}
 
 	@Event(eventType = SimpleEvent.class, includeSubtypes = true, priority = 200)
@@ -54,8 +51,8 @@ class EventBusTest implements EventListener {
 
 	@Event(eventType = SimpleCancelEvent.class, priority = 500)
 	private void onSimpleCancelFirst() {
-		++canceledHits;
-		assertTrue(canceledHits == 1);
+		++cancelledHits;
+		assertTrue(cancelledHits == 1);
 		EventBus.getInstance().cancel();
 	}
 
