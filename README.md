@@ -51,6 +51,15 @@ public class SimpleEventListener implements EventListener {
 In this case, an event bus is created and used locally.
 In a more sophisticated example the class would acquire an external event bus that is used by multiple classes.
 
+Note that creating static event handlers like this
+
+```java
+    @Event
+    private static void onSimpleEvent(SimpleEvent event) ...
+```
+
+is technically possible, however you would still have to create an instance of the event listener to register it at an event bus.
+
 ## Event handlers for subtypes
 
 On certain occasions its practical for an event handler to accept both events of the specified type, as well as subclasses of that event.
