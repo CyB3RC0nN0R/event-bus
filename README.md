@@ -102,27 +102,27 @@ Make sure that you **do not** declare both a parameter and the `eventType` value
 
 ## Event consumption
 
-There are cases when it would be useful to stop event propagation after a certain condition has been fulfilled.
-Event Bus provides a mechanism to consume events:
+In some cases it might be useful to stop the propagation of an event.
+Event Bus makes this possible with event consumption:
 
 ```java
-@Event(eventType = SimpleEvent.class, priority=1000)
+@Event(eventType = SimpleEvent.class, priority=100)
 private void onSimpleEvent() {
 	EventBus.getInstance().cancel();
 }
 
-@Event(eventType = SimpleEvent.class, priority=900)
+@Event(eventType = SimpleEvent.class, priority=50)
 private void onSimpleEvent2() {
 	System.out.println("Will not be printed!");
 }
 ```
 
-In this example, the second method will not be executed as the event will no longer be forwarded.
-Any event handler with a lower priority than the one canceling it will not get executed.
+In this example, the second method will not be executed as it has a lower priority and the event will not be propagated after consumption.
+This applies to all event handlers that would have been executed after the one consuming the event.
 
 **Important:**
-Please avoid cancelling events when (multiple) event handlers have the same priority as the one cancelling it:
-It is undefined whether those will be executed or not.
+Avoid cancelling events while using multiple event handlers with the same priority.
+As event handlers are ordered by priority, it is not defined which of them will be executed after the event has been consumed.
 
 ## Installation
 
