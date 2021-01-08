@@ -54,8 +54,8 @@ In a more sophisticated example the class would acquire an external event bus th
 Note that creating static event handlers like this
 
 ```java
-    @Event
-    private static void onSimpleEvent(SimpleEvent event) ...
+@Event
+private static void onSimpleEvent(SimpleEvent event) ...
 ```
 
 is technically possible, however you would still have to create an instance of the event listener to register it at an event bus.
@@ -126,7 +126,7 @@ As event handlers are ordered by priority, it is not defined which of them will 
 
 ## Installation
 
-Event Bus is currently hosted at [kske.dev](https://kske.dev).
+Event Bus is currently hosted at [kske.dev](https://kske.dev/maven-repo/dev/kske/event-bus/).
 To include it inside your project, just add the Maven repository and the dependency to your `pom.xml`:
 
 ```xml
