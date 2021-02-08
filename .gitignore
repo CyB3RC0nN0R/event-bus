@@ -1,2 +1,5 @@
-/target/
-/.settings/
+# Maven build directories
+target/
+
+# Eclipse settings directories
+.settings/
