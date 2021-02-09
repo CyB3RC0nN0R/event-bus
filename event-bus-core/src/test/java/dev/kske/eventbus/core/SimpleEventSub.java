@@ -1,4 +1,4 @@
-package dev.kske.eventbus;
+package dev.kske.eventbus.core;
 
 /**
  * Subclass of {@link SimpleEvent} for testing purposes.

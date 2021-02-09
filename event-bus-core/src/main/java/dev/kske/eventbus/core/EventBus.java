@@ -1,4 +1,4 @@
-package dev.kske.eventbus;
+package dev.kske.eventbus.core;
 
 import java.lang.System.Logger;
 import java.lang.System.Logger.Level;

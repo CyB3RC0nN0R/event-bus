@@ -1,8 +1,8 @@
-package dev.kske.eventbus;
+package dev.kske.eventbus.core;
 
 import java.lang.reflect.*;
 
-import dev.kske.eventbus.Event.USE_PARAMETER;
+import dev.kske.eventbus.core.Event.USE_PARAMETER;
 
 /**
  * Internal representation of an event handling method.

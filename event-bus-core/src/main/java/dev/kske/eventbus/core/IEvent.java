@@ -1,4 +1,4 @@
-package dev.kske.eventbus;
+package dev.kske.eventbus.core;
 
 /**
  * Marker interface for event objects. Event objects can be used as event handler parameters and

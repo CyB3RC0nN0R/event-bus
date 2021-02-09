@@ -9,7 +9,7 @@
 	<parent>
 		<groupId>dev.kske</groupId>
 		<artifactId>event-bus</artifactId>
-		<version>0.1.0</version>
+		<version>1.0.0</version>
 	</parent>
 
 	<dependencies>
@@ -20,4 +20,11 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
+
+	<build>
+
+		<!-- Disable resource folder -->
+		<resources />
+
+	</build>
 </project>

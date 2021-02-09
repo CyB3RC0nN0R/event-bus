@@ -1,4 +1,4 @@
-package dev.kske.eventbus;
+package dev.kske.eventbus.core;
 
 /**
  * Marker interface for event listeners. Event listeners can contain event handling methods to which

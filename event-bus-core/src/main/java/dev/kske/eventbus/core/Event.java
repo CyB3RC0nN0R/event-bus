@@ -1,4 +1,4 @@
-package dev.kske.eventbus;
+package dev.kske.eventbus.core;
 
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;

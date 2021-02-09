@@ -1,4 +1,4 @@
-package dev.kske.eventbus;
+package dev.kske.eventbus.core;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

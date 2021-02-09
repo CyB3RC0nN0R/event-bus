@@ -11,6 +11,21 @@
 	<parent>
 		<groupId>dev.kske</groupId>
 		<artifactId>event-bus</artifactId>
-		<version>0.1.0</version>
+		<version>1.0.0</version>
 	</parent>
+
+	<dependencies>
+		<dependency>
+			<groupId>dev.kske</groupId>
+			<artifactId>event-bus-core</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+	</dependencies>
+
+	<build>
+
+		<!-- Disable test folder -->
+		<testSourceDirectory />
+
+	</build>
 </project>

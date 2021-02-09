@@ -5,7 +5,7 @@
 
 	<groupId>dev.kske</groupId>
 	<artifactId>event-bus</artifactId>
-	<version>0.1.0</version>
+	<version>1.0.0</version>
 	<packaging>pom</packaging>
 
 	<name>Event Bus</name>
@@ -52,8 +52,7 @@
 
 	<build>
 
-		<!-- Disable resource folders -->
-		<resources />
+		<!-- Disable test resource folder -->
 		<testResources />
 
 		<plugins>

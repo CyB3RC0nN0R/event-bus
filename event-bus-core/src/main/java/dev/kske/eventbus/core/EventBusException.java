@@ -1,4 +1,4 @@
-package dev.kske.eventbus;
+package dev.kske.eventbus.core;
 
 /**
  * This runtime exception is thrown when an event bus error occurs. This can
