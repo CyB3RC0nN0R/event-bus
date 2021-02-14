@@ -1,5 +1,8 @@
 # Maven build directories
 target/
 
+# Dependency reduced POM from Maven Shade Plugin
+dependency-reduced-pom.xml
+
 # Eclipse settings directories
 .settings/
