@@ -20,7 +20,7 @@ Additionally, the class containing the method must implement the `EventListener`
 Lets look at a simple example: we declare the empty class `SimpleEvent` that implements `IEvent` and can thus be used as an event.
 
 ```java
-import dev.kske.eventbus.IEvent;
+import dev.kske.eventbus.core.IEvent;
 
 public class SimpleEvent implements IEvent {}
 ```
@@ -28,7 +28,7 @@ public class SimpleEvent implements IEvent {}
 Next, an event listener for the `SimpleEvent` is declared:
 
 ```java
-import dev.kske.eventbus.*;
+import dev.kske.eventbus.core.*;
 
 public class SimpleEventListener implements EventListener {
 
@@ -62,7 +62,7 @@ is technically possible, however you would still have to create an instance of t
 
 ## Event handlers for subtypes
 
-On certain occasions its practical for an event handler to accept both events of the specified type, as well as subclasses of that event.
+On certain occasions it's practical for an event handler to accept both events of the specified type, as well as subclasses of that event.
 To include subtypes for an event handler, use the `includeSubtypes` parameter as follows:
 
 ```java
@@ -141,7 +141,41 @@ To include it inside your project, just add the Maven repository and the depende
     <dependency>
         <groupId>dev.kske</groupId>
         <artifactId>event-bus</artifactId>
-        <version>0.1.0</version>
+        <version>1.0.0</version>
     </dependency>
 </dependencies>
 ```
+
+Then, require the Event Bus Core module in your `module-info.java`:
+
+```java
+requires dev.kske.eventbus.core;
+```
+
+# Compile-Time Error Checking with Event Bus AP
+
+To assist you with writing event listeners, the Event Bus AP (Annotation Processor) module enforces correct usage of the `@Event` annotation during compile time.
+This reduces difficult-to-debug bugs that occur during runtime to compile-time errors which can be easily fixed.
+
+The event annotation processor detects invalid event handlers, missing `EventListener` implementations, event type issues with more to come in future versions.
+
+When using Maven, it can be registered using the Maven Compiler Plugin:
+
+```xml
+<plugin>
+    <groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-compiler-plugin</artifactId>
+    <version>3.8.1</version>
+    <configuration>
+        <annotationProcessorPaths>
+            <annotationProcessorPath>
+                <groupId>dev.kske</groupId>
+                <artifactId>event-bus-ap</artifactId>
+                <version>1.0.0</version>
+            </annotationProcessorPath>
+        </annotationProcessorPaths>
+    </configuration>
+</plugin>
+```
+
+Alternatively, a JAR file containing the processor is offered with each release for the use within IDEs and environments without Maven support.
