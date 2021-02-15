@@ -3,7 +3,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<artifactId>event-bus-ap</artifactId>
+	<artifactId>event-bus-proc</artifactId>
 
 	<name>Event Bus Annotation Processor</name>
 	<description>Annotation processor checking for errors related to the @Event annotation from Event Bus.</description>
@@ -28,6 +28,8 @@
 		<testSourceDirectory />
 
 		<plugins>
+
+			<!-- Prevent annotation processing error during compilation -->
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
@@ -35,6 +37,7 @@
 				</configuration>
 			</plugin>
 
+			<!-- Include event-bus-core classes into JAR -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-shade-plugin</artifactId>

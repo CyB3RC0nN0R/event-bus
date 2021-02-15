@@ -1,4 +1,4 @@
-package dev.kske.eventbus.ap;
+package dev.kske.eventbus.proc;
 
 import java.util.Set;
 

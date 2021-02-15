@@ -14,7 +14,7 @@
 
 	<modules>
 		<module>event-bus-core</module>
-		<module>event-bus-ap</module>
+		<module>event-bus-proc</module>
 	</modules>
 
 	<licenses>
