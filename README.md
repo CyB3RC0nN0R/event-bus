@@ -92,13 +92,13 @@ In some cases an event handler is not interested in the dispatched event instanc
 To avoid declaring a useless parameter just to specify the event type of the handler, there is an alternative:
 
 ```java
-@Event(eventType = SimpleEvent.class)
+@Event(SimpleEvent.class)
 private void onSimpleEvent() {
 	System.out.println("SimpleEvent received!");
 }
 ```
 
-Make sure that you **do not** declare both a parameter and the `eventType` value of the annotation, as this would be ambiguous.
+Make sure that you **do not** both declare a parameter and specify the event type in the annotation, as this would be ambiguous.
 
 ## Event Consumption
 
@@ -106,13 +106,13 @@ In some cases it might be useful to stop the propagation of an event.
 Event Bus makes this possible with event consumption:
 
 ```java
-@Event(eventType = SimpleEvent.class)
+@Event(SimpleEvent.class)
 @Priority(100)
 private void onSimpleEvent() {
 	EventBus.getInstance().cancel();
 }
 
-@Event(eventType = SimpleEvent.class)
+@Event(SimpleEvent.class)
 @Priority(50)
 private void onSimpleEvent2() {
 	System.out.println("Will not be printed!");
@@ -152,6 +152,12 @@ Then, require the Event Bus Core module in your `module-info.java`:
 
 ```java
 requires dev.kske.eventbus.core;
+```
+
+If you intend to use event handlers that are inaccessible to Event Bus by means of Java language access control, make sure to allow reflective access from your module:
+
+```java
+opens my.module to dev.kske.eventbus.core;
 ```
 
 ## Compile-Time Error Checking with Event Bus AP

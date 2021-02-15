@@ -13,7 +13,7 @@ import java.lang.annotation.*;
  * <li>Specifying an event type by either
  * <ul>
  * <li>Declaring one parameter of a type that implements {@link IEvent}</li>
- * <li>Defining the class of the event using the {@link Event#eventType()} value</li>
+ * <li>Defining the class of the event using the annotation value</li>
  * </ul>
  * </li>
  * <li>Return type of {@code void}</li>
@@ -36,9 +36,9 @@ public @interface Event {
 	 * This is useful when the event handler does not utilize the event instance.
 	 *
 	 * @return the event type accepted by the handler
-	 * @since 0.0.3
+	 * @since 1.0.0
 	 */
-	Class<? extends IEvent> eventType() default USE_PARAMETER.class;
+	Class<? extends IEvent> value() default USE_PARAMETER.class;
 
 	/**
 	 * Signifies that the event type the handler listens to is determined by the type of its only

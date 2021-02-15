@@ -23,8 +23,8 @@ final class EventHandler implements Comparable<EventHandler> {
 
 	private final EventListener				listener;
 	private final Method					method;
-	private final Event						annotation;
 	private final Class<? extends IEvent>	eventType;
+	private final boolean					useParameter;
 	private final boolean					polymorphic;
 	private final int						priority;
 
@@ -42,13 +42,13 @@ final class EventHandler implements Comparable<EventHandler> {
 	EventHandler(EventListener listener, Method method, Event annotation) throws EventBusException {
 		this.listener	= listener;
 		this.method		= method;
-		this.annotation	= annotation;
+		useParameter	= annotation.value() == USE_PARAMETER.class;
 
 		// Check for correct method signature and return type
-		if (method.getParameterCount() == 0 && annotation.eventType().equals(USE_PARAMETER.class))
+		if (method.getParameterCount() == 0 && useParameter)
 			throw new EventBusException(method + " does not define an event type!");
 
-		if (method.getParameterCount() == 1 && !annotation.eventType().equals(USE_PARAMETER.class))
+		if (method.getParameterCount() == 1 && !useParameter)
 			throw new EventBusException(method + " defines an ambiguous event type!");
 
 		if (method.getParameterCount() > 1)
@@ -58,16 +58,18 @@ final class EventHandler implements Comparable<EventHandler> {
 			throw new EventBusException(method + " does not have a return type of void!");
 
 		// Determine the event type
-		Class<? extends IEvent> eventType = annotation.eventType();
-		if (eventType.equals(USE_PARAMETER.class)) {
+		if (useParameter) {
 			var param = method.getParameterTypes()[0];
 			if (!IEvent.class.isAssignableFrom(param))
 				throw new EventBusException(param + " is not of type IEvent!");
 			eventType = (Class<? extends IEvent>) param;
+		} else {
+			eventType = annotation.value();
 		}
-		this.eventType	= eventType;
-		polymorphic		= method.isAnnotationPresent(Polymorphic.class);
-		priority		= method.isAnnotationPresent(Priority.class)
+
+		// Determine additional handler properties
+		polymorphic	= method.isAnnotationPresent(Polymorphic.class);
+		priority	= method.isAnnotationPresent(Priority.class)
 			? method.getAnnotation(Priority.class).value()
 			: DEFAULT_PRIORITY;
 
@@ -93,8 +95,9 @@ final class EventHandler implements Comparable<EventHandler> {
 
 	@Override
 	public String toString() {
-		return String.format("EventHandler[method=%s, eventType=%s, polymorphic=%b, priority=%d]",
-			method, annotation.eventType(), polymorphic, priority);
+		return String.format(
+			"EventHandler[method=%s, eventType=%s, useParameter=%b, polymorphic=%b, priority=%d]",
+			method, eventType, useParameter, polymorphic, priority);
 	}
 
 	/**
@@ -106,7 +109,7 @@ final class EventHandler implements Comparable<EventHandler> {
 	 */
 	void execute(IEvent event) throws EventBusException {
 		try {
-			if (annotation.eventType() == USE_PARAMETER.class)
+			if (useParameter)
 				method.invoke(listener, event);
 			else
 				method.invoke(listener);
@@ -122,7 +125,7 @@ final class EventHandler implements Comparable<EventHandler> {
 	EventListener getListener() { return listener; }
 
 	/**
-	 * @return the event type this handler listens to
+	 * @return the event type this handler listens for
 	 * @since 0.0.3
 	 */
 	Class<? extends IEvent> getEventType() { return eventType; }

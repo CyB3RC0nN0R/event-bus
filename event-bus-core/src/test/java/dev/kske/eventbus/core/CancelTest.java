@@ -39,14 +39,14 @@ class CancelTest implements EventListener {
 		assertEquals(1, hits);
 	}
 
-	@Event(eventType = SimpleEvent.class)
+	@Event(SimpleEvent.class)
 	@Priority(100)
 	void onSimpleFirst() {
 		++hits;
 		bus.cancel();
 	}
 
-	@Event(eventType = SimpleEvent.class)
+	@Event(SimpleEvent.class)
 	@Priority(50)
 	void onSimpleSecond() {
 		++hits;

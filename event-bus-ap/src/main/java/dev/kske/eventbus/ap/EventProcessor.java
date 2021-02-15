@@ -40,7 +40,7 @@ public class EventProcessor extends AbstractProcessor {
 			// Determine how the event type is defined
 			boolean useParameter;
 			try {
-				eventAnnotation.eventType();
+				eventAnnotation.value();
 				throw new EventBusException(
 					"Could not determine event type of handler " + eventHandler);
 			} catch (MirroredTypeException e) {
