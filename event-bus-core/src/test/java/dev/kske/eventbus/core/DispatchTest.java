@@ -10,7 +10,7 @@ import org.junit.jupiter.api.*;
  * @author Kai S. K. Engelbart
  * @since 0.0.1
  */
-class DispatchTest implements EventListener {
+class DispatchTest {
 
 	EventBus	bus;
 	static int	hits;
@@ -27,7 +27,7 @@ class DispatchTest implements EventListener {
 	}
 
 	/**
-	 * Tests {@link EventBus#dispatch(IEvent)} with multiple handler priorities, a subtype handler
+	 * Tests {@link EventBus#dispatch(Object)} with multiple handler priorities, a subtype handler
 	 * and a static handler.
 	 *
 	 * @since 0.0.1
@@ -38,19 +38,22 @@ class DispatchTest implements EventListener {
 		bus.dispatch(new SimpleEvent());
 	}
 
-	@Event(eventType = SimpleEvent.class, includeSubtypes = true, priority = 200)
+	@Event(SimpleEvent.class)
+	@Priority(200)
+	@Polymorphic
 	void onSimpleEventFirst() {
 		++hits;
 		assertTrue(hits == 1 || hits == 2);
 	}
 
-	@Event(eventType = SimpleEvent.class, priority = 150)
+	@Event(SimpleEvent.class)
+	@Priority(150)
 	static void onSimpleEventSecond() {
 		++hits;
 		assertEquals(3, hits);
 	}
 
-	@Event(priority = 100)
+	@Event
 	void onSimpleEventThird(SimpleEvent event) {
 		++hits;
 		assertEquals(4, hits);

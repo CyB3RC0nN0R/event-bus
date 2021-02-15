@@ -13,10 +13,20 @@ import dev.kske.eventbus.core.Event.USE_PARAMETER;
  */
 final class EventHandler implements Comparable<EventHandler> {
 
-	private final EventListener listener;
-	private final Method method;
-	private final Event annotation;
-	private final Class<? extends IEvent> eventType;
+	/**
+	 * The priority assigned to every event handler without an explicitly defined priority.
+	 *
+	 * @since 1.0.0
+	 * @see Priority
+	 */
+	public static final int DEFAULT_PRIORITY = 100;
+
+	private final Object	listener;
+	private final Method	method;
+	private final Class<?>	eventType;
+	private final boolean	useParameter;
+	private final boolean	polymorphic;
+	private final int		priority;
 
 	/**
 	 * Constructs an event handler.
@@ -28,17 +38,16 @@ final class EventHandler implements Comparable<EventHandler> {
 	 *                           specification
 	 * @since 0.0.1
 	 */
-	@SuppressWarnings("unchecked")
-	EventHandler(EventListener listener, Method method, Event annotation) throws EventBusException {
-		this.listener = listener;
-		this.method = method;
-		this.annotation = annotation;
+	EventHandler(Object listener, Method method, Event annotation) throws EventBusException {
+		this.listener	= listener;
+		this.method		= method;
+		useParameter	= annotation.value() == USE_PARAMETER.class;
 
 		// Check for correct method signature and return type
-		if (method.getParameterCount() == 0 && annotation.eventType().equals(USE_PARAMETER.class))
+		if (method.getParameterCount() == 0 && useParameter)
 			throw new EventBusException(method + " does not define an event type!");
 
-		if (method.getParameterCount() == 1 && !annotation.eventType().equals(USE_PARAMETER.class))
+		if (method.getParameterCount() == 1 && !useParameter)
 			throw new EventBusException(method + " defines an ambiguous event type!");
 
 		if (method.getParameterCount() > 1)
@@ -47,31 +56,28 @@ final class EventHandler implements Comparable<EventHandler> {
 		if (!method.getReturnType().equals(void.class))
 			throw new EventBusException(method + " does not have a return type of void!");
 
-		// Determine the event type
-		Class<? extends IEvent> eventType = annotation.eventType();
-		if (eventType.equals(USE_PARAMETER.class)) {
-			var param = method.getParameterTypes()[0];
-			if (!IEvent.class.isAssignableFrom(param))
-				throw new EventBusException(param + " is not of type IEvent!");
-			eventType = (Class<? extends IEvent>) param;
-		}
-		this.eventType = eventType;
+		// Determine handler properties
+		eventType	= useParameter ? method.getParameterTypes()[0] : annotation.value();
+		polymorphic	= method.isAnnotationPresent(Polymorphic.class);
+		priority	= method.isAnnotationPresent(Priority.class)
+			? method.getAnnotation(Priority.class).value()
+			: DEFAULT_PRIORITY;
 
 		// Allow access if the method is non-public
 		method.setAccessible(true);
 	}
 
 	/**
-	 * Compares this to another event handler based on {@link Event#priority()}. In case of equal
-	 * priority a non-zero value based on hash codes is returned.
+	 * Compares this to another event handler based on priority. In case of equal priority a
+	 * non-zero value based on hash codes is returned.
 	 * <p>
-	 * This is used to retrieve event handlers in the correct order from a tree set.
+	 * This is used to retrieve event handlers in order of descending priority from a tree set.
 	 *
 	 * @since 0.0.1
 	 */
 	@Override
 	public int compareTo(EventHandler other) {
-		int priority = other.annotation.priority() - annotation.priority();
+		int priority = other.priority - this.priority;
 		if (priority == 0)
 			priority = listener.hashCode() - other.listener.hashCode();
 		return priority == 0 ? hashCode() - other.hashCode() : priority;
@@ -79,7 +85,9 @@ final class EventHandler implements Comparable<EventHandler> {
 
 	@Override
 	public String toString() {
-		return String.format("EventHandler[method=%s, annotation=%s]", method, annotation);
+		return String.format(
+			"EventHandler[method=%s, eventType=%s, useParameter=%b, polymorphic=%b, priority=%d]",
+			method, eventType, useParameter, polymorphic, priority);
 	}
 
 	/**
@@ -89,17 +97,13 @@ final class EventHandler implements Comparable<EventHandler> {
 	 * @throws EventBusException if the handler throws an exception
 	 * @since 0.0.1
 	 */
-	void execute(IEvent event) throws EventBusException {
+	void execute(Object event) throws EventBusException {
 		try {
-			if (annotation.eventType().equals(USE_PARAMETER.class))
+			if (useParameter)
 				method.invoke(listener, event);
 			else
 				method.invoke(listener);
-		} catch (
-			IllegalAccessException
-			| IllegalArgumentException
-			| InvocationTargetException e
-		) {
+		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 			throw new EventBusException("Failed to invoke event handler!", e);
 		}
 	}
@@ -108,29 +112,25 @@ final class EventHandler implements Comparable<EventHandler> {
 	 * @return the listener containing this handler
 	 * @since 0.0.1
 	 */
-	EventListener getListener() { return listener; }
+	Object getListener() { return listener; }
 
 	/**
-	 * @return the event annotation
-	 * @since 0.0.1
-	 */
-	Event getAnnotation() { return annotation; }
-
-	/**
-	 * @return the priority of the event annotation
-	 * @since 0.0.1
-	 */
-	int getPriority() { return annotation.priority(); }
-
-	/**
-	 * @return whether this handler includes subtypes
-	 * @since 0.0.4
-	 */
-	boolean includeSubtypes() { return annotation.includeSubtypes(); }
-
-	/**
-	 * @return the event type this handler listens to
+	 * @return the event type this handler listens for
 	 * @since 0.0.3
 	 */
-	Class<? extends IEvent> getEventType() { return eventType; }
+	Class<?> getEventType() { return eventType; }
+
+	/**
+	 * @return the priority of this handler
+	 * @since 0.0.1
+	 * @see Priority
+	 */
+	int getPriority() { return priority; }
+
+	/**
+	 * @return whether this handler is polymorphic
+	 * @since 1.0.0
+	 * @see Polymorphic
+	 */
+	boolean isPolymorphic() { return polymorphic; }
 }

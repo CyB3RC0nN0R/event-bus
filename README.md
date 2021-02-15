@@ -3,7 +3,7 @@
 ## Introduction
 
 This library allows passing events between different objects without them having a direct reference to each other.
-Any class can be made an event by implementing the `IEvent` interface.
+Any object can serve as an event.
 
 Using an instance of the `EventBus` class, an instant of the event class can be dispatched.
 This means that it will be forwarded to all listeners registered for it at the event bus.
@@ -13,16 +13,13 @@ In addition, a singleton instance of the event bus is provided by the `EventBus#
 To listen to events, register event handling methods using the `Event` annotation.
 For this to work, the method must have a return type of `void` and declare a single parameter of the desired event type.
 Alternatively, a parameter-less event handler can be declared as shown [below](#parameter-less-event-handlers).
-Additionally, the class containing the method must implement the `EventListener` interface.
 
 ## A Simple Example
 
-Lets look at a simple example: we declare the empty class `SimpleEvent` that implements `IEvent` and can thus be used as an event.
+Lets look at a simple example: we declare the empty class `SimpleEvent` whose objects can be used as events.
 
 ```java
-import dev.kske.eventbus.core.IEvent;
-
-public class SimpleEvent implements IEvent {}
+public class SimpleEvent {}
 ```
 
 Next, an event listener for the `SimpleEvent` is declared:
@@ -30,7 +27,7 @@ Next, an event listener for the `SimpleEvent` is declared:
 ```java
 import dev.kske.eventbus.core.*;
 
-public class SimpleEventListener implements EventListener {
+public class SimpleEventListener {
 
     public SimpleEventListener() {
 
@@ -55,63 +52,65 @@ Note that creating static event handlers like this
 
 ```java
 @Event
-private static void onSimpleEvent(SimpleEvent event) ...
+private static void onSimpleEvent(SimpleEvent event) { ... }
 ```
 
 is technically possible, however you would still have to create an instance of the event listener to register it at an event bus.
 
-## Event handlers for subtypes
+## Polymorphic Event Handlers
 
 On certain occasions it's practical for an event handler to accept both events of the specified type, as well as subclasses of that event.
-To include subtypes for an event handler, use the `includeSubtypes` parameter as follows:
+To include subtypes for an event handler, use the `@Polymorphic` annotation in addition to `@Event`:
 
 ```java
-@Event(includeSubtypes = true)
+@Event
+@Polymorphic
+private void onSimpleEvent(SimpleEvent event) { ... }
 ```
 
-## Event handler execution order
+## Event Handler Execution Order
 
-Sometimes when using multiple handlers for one event, it might be useful to know in which order they will be executed.
-Event Bus provides a mechanism to ensure the correct propagation of events: the `priority`.
+Sometimes when using multiple handlers for one event, it might be useful to define in which order they will be executed.
+Event Bus assigns a priority to every handler, which is `100` by default, but can be explicitly set using the `@Priority` annotation in addition to `@Event`:
 
-Priority can be set on the `@Event` annotation like that:
 ```java
-@Event(priority=100)
+@Event
+@Priority(250)
+private void onSimpleEvent(SimpleEvent event) { ... }
 ```
-
-The default priority for events is `100`.
 
 **Important:**
-Events are dispatched top-down, meaning the event handler with the highest priority will be executed first.
+Events are dispatched to handlers in descending order of their priority.
+The execution order is undefined for handlers with the same priority.
 
-If no priority is set or multiple handlers have the same priority, the order of execution is undefined.
-
-## Parameter-less event handlers
+## Parameter-Less Event Handlers
 
 In some cases an event handler is not interested in the dispatched event instance.
 To avoid declaring a useless parameter just to specify the event type of the handler, there is an alternative:
 
 ```java
-@Event(eventType = SimpleEvent.class)
+@Event(SimpleEvent.class)
 private void onSimpleEvent() {
 	System.out.println("SimpleEvent received!");
 }
 ```
 
-Make sure that you **do not** declare both a parameter and the `eventType` value of the annotation, as this would be ambiguous.
+Make sure that you **do not** both declare a parameter and specify the event type in the annotation, as this would be ambiguous.
 
-## Event consumption
+## Event Consumption
 
 In some cases it might be useful to stop the propagation of an event.
 Event Bus makes this possible with event consumption:
 
 ```java
-@Event(eventType = SimpleEvent.class, priority=100)
+@Event(SimpleEvent.class)
+@Priority(100)
 private void onSimpleEvent() {
 	EventBus.getInstance().cancel();
 }
 
-@Event(eventType = SimpleEvent.class, priority=50)
+@Event(SimpleEvent.class)
+@Priority(50)
 private void onSimpleEvent2() {
 	System.out.println("Will not be printed!");
 }
@@ -152,12 +151,18 @@ Then, require the Event Bus Core module in your `module-info.java`:
 requires dev.kske.eventbus.core;
 ```
 
-# Compile-Time Error Checking with Event Bus AP
+If you intend to use event handlers that are inaccessible to Event Bus by means of Java language access control, make sure to allow reflective access from your module:
+
+```java
+opens my.module to dev.kske.eventbus.core;
+```
+
+## Compile-Time Error Checking with Event Bus AP
 
 To assist you with writing event listeners, the Event Bus AP (Annotation Processor) module enforces correct usage of the `@Event` annotation during compile time.
 This reduces difficult-to-debug bugs that occur during runtime to compile-time errors which can be easily fixed.
 
-The event annotation processor detects invalid event handlers, missing `EventListener` implementations, event type issues with more to come in future versions.
+The event annotation processor detects invalid event handlers and event type issues with more to come in future versions.
 
 When using Maven, it can be registered using the Maven Compiler Plugin:
 

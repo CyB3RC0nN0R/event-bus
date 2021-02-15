@@ -11,7 +11,7 @@ import org.junit.jupiter.api.*;
  * @author Leon Hofmeister
  * @since 0.1.0
  */
-class CancelTest implements EventListener {
+class CancelTest {
 
 	EventBus	bus;
 	int			hits;
@@ -39,13 +39,15 @@ class CancelTest implements EventListener {
 		assertEquals(1, hits);
 	}
 
-	@Event(eventType = SimpleEvent.class, priority = 100)
+	@Event(SimpleEvent.class)
+	@Priority(100)
 	void onSimpleFirst() {
 		++hits;
 		bus.cancel();
 	}
 
-	@Event(eventType = SimpleEvent.class, priority = 50)
+	@Event(SimpleEvent.class)
+	@Priority(50)
 	void onSimpleSecond() {
 		++hits;
 	}

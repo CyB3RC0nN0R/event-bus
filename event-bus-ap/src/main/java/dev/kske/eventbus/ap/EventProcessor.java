@@ -34,13 +34,12 @@ public class EventProcessor extends AbstractProcessor {
 
 	private void processRound(Set<ExecutableElement> eventHandlers) {
 		for (ExecutableElement eventHandler : eventHandlers) {
-			TypeElement	eventListener	= (TypeElement) eventHandler.getEnclosingElement();
-			Event		eventAnnotation	= eventHandler.getAnnotation(Event.class);
+			Event eventAnnotation = eventHandler.getAnnotation(Event.class);
 
 			// Determine how the event type is defined
 			boolean useParameter;
 			try {
-				eventAnnotation.eventType();
+				eventAnnotation.value();
 				throw new EventBusException(
 					"Could not determine event type of handler " + eventHandler);
 			} catch (MirroredTypeException e) {
@@ -68,24 +67,15 @@ public class EventProcessor extends AbstractProcessor {
 			var	paramElement	= eventHandler.getParameters().get(0);
 			var	paramType		= paramElement.asType();
 
-			// Check for valid event type
-			if (useParameter && !processingEnv.getTypeUtils().isAssignable(paramType,
-				getTypeMirror(IEvent.class)))
-				error(paramElement, "Parameter must implement IEvent");
-
-			// Check for handlers for abstract types that don't include subtypes
-			if (!eventAnnotation.includeSubtypes() && paramType.getKind() == TypeKind.DECLARED) {
+			// Check for handlers for abstract types that aren't polymorphic
+			if (eventHandler.getAnnotation(Polymorphic.class) == null
+				&& paramType.getKind() == TypeKind.DECLARED) {
 				var declaredElement = ((DeclaredType) paramType).asElement();
 				if (declaredElement.getKind() == ElementKind.INTERFACE
 					|| declaredElement.getModifiers().contains(Modifier.ABSTRACT))
 					warning(paramElement,
-						"Parameter should be instantiable or handler should include subtypes");
+						"Parameter should be instantiable or handler should use @Polymorphic");
 			}
-
-			// Check listener for interface implementation
-			if (!eventListener.getInterfaces().contains(getTypeMirror(EventListener.class)))
-				warning(eventHandler.getEnclosingElement(),
-					"Class should implement EventListener interface");
 		}
 	}
 
