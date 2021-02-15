@@ -13,10 +13,11 @@ import dev.kske.eventbus.core.Event.USE_PARAMETER;
  */
 final class EventHandler implements Comparable<EventHandler> {
 
-	private final EventListener listener;
-	private final Method method;
-	private final Event annotation;
-	private final Class<? extends IEvent> eventType;
+	private final EventListener				listener;
+	private final Method					method;
+	private final Event						annotation;
+	private final Class<? extends IEvent>	eventType;
+	private final boolean					polymorphic;
 
 	/**
 	 * Constructs an event handler.
@@ -30,9 +31,9 @@ final class EventHandler implements Comparable<EventHandler> {
 	 */
 	@SuppressWarnings("unchecked")
 	EventHandler(EventListener listener, Method method, Event annotation) throws EventBusException {
-		this.listener = listener;
-		this.method = method;
-		this.annotation = annotation;
+		this.listener	= listener;
+		this.method		= method;
+		this.annotation	= annotation;
 
 		// Check for correct method signature and return type
 		if (method.getParameterCount() == 0 && annotation.eventType().equals(USE_PARAMETER.class))
@@ -55,7 +56,8 @@ final class EventHandler implements Comparable<EventHandler> {
 				throw new EventBusException(param + " is not of type IEvent!");
 			eventType = (Class<? extends IEvent>) param;
 		}
-		this.eventType = eventType;
+		this.eventType	= eventType;
+		polymorphic		= method.isAnnotationPresent(Polymorphic.class);
 
 		// Allow access if the method is non-public
 		method.setAccessible(true);
@@ -65,7 +67,7 @@ final class EventHandler implements Comparable<EventHandler> {
 	 * Compares this to another event handler based on {@link Event#priority()}. In case of equal
 	 * priority a non-zero value based on hash codes is returned.
 	 * <p>
-	 * This is used to retrieve event handlers in the correct order from a tree set.
+	 * This is used to retrieve event handlers in order of descending priority from a tree set.
 	 *
 	 * @since 0.0.1
 	 */
@@ -91,15 +93,11 @@ final class EventHandler implements Comparable<EventHandler> {
 	 */
 	void execute(IEvent event) throws EventBusException {
 		try {
-			if (annotation.eventType().equals(USE_PARAMETER.class))
+			if (annotation.eventType() == USE_PARAMETER.class)
 				method.invoke(listener, event);
 			else
 				method.invoke(listener);
-		} catch (
-			IllegalAccessException
-			| IllegalArgumentException
-			| InvocationTargetException e
-		) {
+		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 			throw new EventBusException("Failed to invoke event handler!", e);
 		}
 	}
@@ -123,10 +121,11 @@ final class EventHandler implements Comparable<EventHandler> {
 	int getPriority() { return annotation.priority(); }
 
 	/**
-	 * @return whether this handler includes subtypes
-	 * @since 0.0.4
+	 * @return whether this handler is polymorphic
+	 * @since 1.0.0
+	 * @see Polymorphic
 	 */
-	boolean includeSubtypes() { return annotation.includeSubtypes(); }
+	boolean isPolymorphic() { return polymorphic; }
 
 	/**
 	 * @return the event type this handler listens to

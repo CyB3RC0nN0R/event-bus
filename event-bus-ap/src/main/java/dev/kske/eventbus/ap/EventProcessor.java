@@ -73,8 +73,9 @@ public class EventProcessor extends AbstractProcessor {
 				getTypeMirror(IEvent.class)))
 				error(paramElement, "Parameter must implement IEvent");
 
-			// Check for handlers for abstract types that don't include subtypes
-			if (!eventAnnotation.includeSubtypes() && paramType.getKind() == TypeKind.DECLARED) {
+			// Check for handlers for abstract types that aren't polymorphic
+			if (eventHandler.getAnnotation(Polymorphic.class) == null
+				&& paramType.getKind() == TypeKind.DECLARED) {
 				var declaredElement = ((DeclaredType) paramType).asElement();
 				if (declaredElement.getKind() == ElementKind.INTERFACE
 					|| declaredElement.getModifiers().contains(Modifier.ABSTRACT))

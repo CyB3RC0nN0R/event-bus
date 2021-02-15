@@ -55,21 +55,23 @@ Note that creating static event handlers like this
 
 ```java
 @Event
-private static void onSimpleEvent(SimpleEvent event) ...
+private static void onSimpleEvent(SimpleEvent event) { ... }
 ```
 
 is technically possible, however you would still have to create an instance of the event listener to register it at an event bus.
 
-## Event handlers for subtypes
+## Polymorphic Event Handlers
 
 On certain occasions it's practical for an event handler to accept both events of the specified type, as well as subclasses of that event.
-To include subtypes for an event handler, use the `includeSubtypes` parameter as follows:
+To include subtypes for an event handler, use the `@Polymorphic` annotation in addition to `@Event`:
 
 ```java
-@Event(includeSubtypes = true)
+@Event
+@Polymorphic
+private void onSimpleEvent(SimpleEvent event) { ... }
 ```
 
-## Event handler execution order
+## Event Handler Execution Order
 
 Sometimes when using multiple handlers for one event, it might be useful to know in which order they will be executed.
 Event Bus provides a mechanism to ensure the correct propagation of events: the `priority`.
@@ -86,7 +88,7 @@ Events are dispatched top-down, meaning the event handler with the highest prior
 
 If no priority is set or multiple handlers have the same priority, the order of execution is undefined.
 
-## Parameter-less event handlers
+## Parameter-Less Event Handlers
 
 In some cases an event handler is not interested in the dispatched event instance.
 To avoid declaring a useless parameter just to specify the event type of the handler, there is an alternative:
@@ -100,7 +102,7 @@ private void onSimpleEvent() {
 
 Make sure that you **do not** declare both a parameter and the `eventType` value of the annotation, as this would be ambiguous.
 
-## Event consumption
+## Event Consumption
 
 In some cases it might be useful to stop the propagation of an event.
 Event Bus makes this possible with event consumption:
@@ -152,7 +154,7 @@ Then, require the Event Bus Core module in your `module-info.java`:
 requires dev.kske.eventbus.core;
 ```
 
-# Compile-Time Error Checking with Event Bus AP
+## Compile-Time Error Checking with Event Bus AP
 
 To assist you with writing event listeners, the Event Bus AP (Annotation Processor) module enforces correct usage of the `@Event` annotation during compile time.
 This reduces difficult-to-debug bugs that occur during runtime to compile-time errors which can be easily fixed.

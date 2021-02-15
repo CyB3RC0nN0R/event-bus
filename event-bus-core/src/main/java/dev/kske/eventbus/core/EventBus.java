@@ -104,7 +104,7 @@ public final class EventBus {
 		for (var binding : bindings.entrySet())
 			if (binding.getKey().isAssignableFrom(eventClass))
 				for (var handler : binding.getValue())
-					if (handler.includeSubtypes())
+					if (handler.isPolymorphic())
 						handlers.add(handler);
 
 		return new ArrayList<>(handlers);

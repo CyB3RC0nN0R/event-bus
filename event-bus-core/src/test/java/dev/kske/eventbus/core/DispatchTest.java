@@ -38,7 +38,8 @@ class DispatchTest implements EventListener {
 		bus.dispatch(new SimpleEvent());
 	}
 
-	@Event(eventType = SimpleEvent.class, includeSubtypes = true, priority = 200)
+	@Event(eventType = SimpleEvent.class, priority = 200)
+	@Polymorphic
 	void onSimpleEventFirst() {
 		++hits;
 		assertTrue(hits == 1 || hits == 2);
