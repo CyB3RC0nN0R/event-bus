@@ -51,11 +51,12 @@ public final class EventBus {
 		return instance;
 	}
 
-	private final Map<Class<? extends IEvent>, TreeSet<EventHandler>> bindings
-		= new ConcurrentHashMap<>();
-	private final Set<EventListener> registeredListeners = ConcurrentHashMap.newKeySet();
-	private final ThreadLocal<DispatchState> dispatchState
-		= ThreadLocal.withInitial(DispatchState::new);
+	private final Map<Class<? extends IEvent>, TreeSet<EventHandler>>	bindings			=
+		new ConcurrentHashMap<>();
+	private final Set<EventListener>									registeredListeners	=
+		ConcurrentHashMap.newKeySet();
+	private final ThreadLocal<DispatchState>							dispatchState		=
+		ThreadLocal.withInitial(DispatchState::new);
 
 	/**
 	 * Dispatches an event to all event handlers registered for it in descending order of their
@@ -97,9 +98,7 @@ public final class EventBus {
 	private List<EventHandler> getHandlersFor(Class<? extends IEvent> eventClass) {
 
 		// Get handlers defined for the event class
-		Set<EventHandler> handlers
-			= bindings.containsKey(eventClass) ? bindings.get(eventClass)
-				: new TreeSet<>();
+		Set<EventHandler> handlers = bindings.getOrDefault(eventClass, new TreeSet<>());
 
 		// Get subtype handlers
 		for (var binding : bindings.entrySet())
@@ -151,20 +150,18 @@ public final class EventBus {
 
 			// Initialize and bind the handler
 			var handler = new EventHandler(listener, method, annotation);
-			if (!bindings.containsKey(handler.getEventType()))
-				bindings.put(handler.getEventType(), new TreeSet<>());
+			bindings.putIfAbsent(handler.getEventType(), new TreeSet<>());
 			logger.log(Level.DEBUG, "Binding event handler {0}", handler);
 			bindings.get(handler.getEventType())
 				.add(handler);
 			handlerBound = true;
 		}
 
-		if(!handlerBound)
+		if (!handlerBound)
 			logger.log(
 				Level.WARNING,
 				"No event handlers bound for event listener {0}",
-				listener.getClass().getName()
-			);
+				listener.getClass().getName());
 	}
 
 	/**
