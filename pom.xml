@@ -40,7 +40,7 @@
 
 	<scm>
 		<connection>scm:git:https://git.kske.dev/kske/event-bus.git</connection>
-		<developerConnection>scm:git:ssh:git@git.kske.dev:kske/event-bus.git</developerConnection>
+		<developerConnection>scm:git:ssh://git@git.kske.dev:420/kske/event-bus.git</developerConnection>
 	</scm>
 
 	<properties>
