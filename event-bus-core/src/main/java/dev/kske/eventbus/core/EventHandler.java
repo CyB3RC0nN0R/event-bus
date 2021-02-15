@@ -21,12 +21,12 @@ final class EventHandler implements Comparable<EventHandler> {
 	 */
 	public static final int DEFAULT_PRIORITY = 100;
 
-	private final EventListener				listener;
-	private final Method					method;
-	private final Class<? extends IEvent>	eventType;
-	private final boolean					useParameter;
-	private final boolean					polymorphic;
-	private final int						priority;
+	private final Object	listener;
+	private final Method	method;
+	private final Class<?>	eventType;
+	private final boolean	useParameter;
+	private final boolean	polymorphic;
+	private final int		priority;
 
 	/**
 	 * Constructs an event handler.
@@ -38,8 +38,7 @@ final class EventHandler implements Comparable<EventHandler> {
 	 *                           specification
 	 * @since 0.0.1
 	 */
-	@SuppressWarnings("unchecked")
-	EventHandler(EventListener listener, Method method, Event annotation) throws EventBusException {
+	EventHandler(Object listener, Method method, Event annotation) throws EventBusException {
 		this.listener	= listener;
 		this.method		= method;
 		useParameter	= annotation.value() == USE_PARAMETER.class;
@@ -57,17 +56,8 @@ final class EventHandler implements Comparable<EventHandler> {
 		if (!method.getReturnType().equals(void.class))
 			throw new EventBusException(method + " does not have a return type of void!");
 
-		// Determine the event type
-		if (useParameter) {
-			var param = method.getParameterTypes()[0];
-			if (!IEvent.class.isAssignableFrom(param))
-				throw new EventBusException(param + " is not of type IEvent!");
-			eventType = (Class<? extends IEvent>) param;
-		} else {
-			eventType = annotation.value();
-		}
-
-		// Determine additional handler properties
+		// Determine handler properties
+		eventType	= useParameter ? method.getParameterTypes()[0] : annotation.value();
 		polymorphic	= method.isAnnotationPresent(Polymorphic.class);
 		priority	= method.isAnnotationPresent(Priority.class)
 			? method.getAnnotation(Priority.class).value()
@@ -107,7 +97,7 @@ final class EventHandler implements Comparable<EventHandler> {
 	 * @throws EventBusException if the handler throws an exception
 	 * @since 0.0.1
 	 */
-	void execute(IEvent event) throws EventBusException {
+	void execute(Object event) throws EventBusException {
 		try {
 			if (useParameter)
 				method.invoke(listener, event);
@@ -122,13 +112,13 @@ final class EventHandler implements Comparable<EventHandler> {
 	 * @return the listener containing this handler
 	 * @since 0.0.1
 	 */
-	EventListener getListener() { return listener; }
+	Object getListener() { return listener; }
 
 	/**
 	 * @return the event type this handler listens for
 	 * @since 0.0.3
 	 */
-	Class<? extends IEvent> getEventType() { return eventType; }
+	Class<?> getEventType() { return eventType; }
 
 	/**
 	 * @return the priority of this handler

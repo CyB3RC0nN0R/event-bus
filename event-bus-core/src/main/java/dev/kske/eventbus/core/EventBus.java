@@ -51,11 +51,11 @@ public final class EventBus {
 		return instance;
 	}
 
-	private final Map<Class<? extends IEvent>, TreeSet<EventHandler>>	bindings			=
+	private final Map<Class<?>, TreeSet<EventHandler>>	bindings			=
 		new ConcurrentHashMap<>();
-	private final Set<EventListener>									registeredListeners	=
+	private final Set<Object>							registeredListeners	=
 		ConcurrentHashMap.newKeySet();
-	private final ThreadLocal<DispatchState>							dispatchState		=
+	private final ThreadLocal<DispatchState>			dispatchState		=
 		ThreadLocal.withInitial(DispatchState::new);
 
 	/**
@@ -65,7 +65,7 @@ public final class EventBus {
 	 * @param event the event to dispatch
 	 * @since 0.0.1
 	 */
-	public void dispatch(IEvent event) {
+	public void dispatch(Object event) {
 		Objects.requireNonNull(event);
 		logger.log(Level.INFO, "Dispatching event {0}", event);
 
@@ -95,7 +95,7 @@ public final class EventBus {
 	 * @return all event handlers registered for the event class
 	 * @since 0.0.1
 	 */
-	private List<EventHandler> getHandlersFor(Class<? extends IEvent> eventClass) {
+	private List<EventHandler> getHandlersFor(Class<?> eventClass) {
 
 		// Get handlers defined for the event class
 		Set<EventHandler> handlers = bindings.getOrDefault(eventClass, new TreeSet<>());
@@ -133,7 +133,7 @@ public final class EventBus {
 	 * @since 0.0.1
 	 * @see Event
 	 */
-	public void registerListener(EventListener listener) throws EventBusException {
+	public void registerListener(Object listener) throws EventBusException {
 		Objects.requireNonNull(listener);
 		if (registeredListeners.contains(listener))
 			throw new EventBusException(listener + " already registered!");
@@ -170,7 +170,7 @@ public final class EventBus {
 	 * @param listener the listener to remove
 	 * @since 0.0.1
 	 */
-	public void removeListener(EventListener listener) {
+	public void removeListener(Object listener) {
 		Objects.requireNonNull(listener);
 		logger.log(Level.INFO, "Removing event listener {0}", listener.getClass().getName());
 
@@ -204,7 +204,7 @@ public final class EventBus {
 	 * @return all registered event listeners
 	 * @since 0.0.1
 	 */
-	public Set<EventListener> getRegisteredListeners() {
+	public Set<Object> getRegisteredListeners() {
 		return Collections.unmodifiableSet(registeredListeners);
 	}
 }

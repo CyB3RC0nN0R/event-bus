@@ -9,10 +9,9 @@ import java.lang.annotation.*;
  * Indicates that a method is an event handler. To be successfully used as such, the method has to
  * comply with the following specifications:
  * <ul>
- * <li>Declared inside a class that implements {@link EventListener}</li>
  * <li>Specifying an event type by either
  * <ul>
- * <li>Declaring one parameter of a type that implements {@link IEvent}</li>
+ * <li>Declaring one object parameter</li>
  * <li>Defining the class of the event using the annotation value</li>
  * </ul>
  * </li>
@@ -38,7 +37,7 @@ public @interface Event {
 	 * @return the event type accepted by the handler
 	 * @since 1.0.0
 	 */
-	Class<? extends IEvent> value() default USE_PARAMETER.class;
+	Class<?> value() default USE_PARAMETER.class;
 
 	/**
 	 * Signifies that the event type the handler listens to is determined by the type of its only
@@ -46,5 +45,5 @@ public @interface Event {
 	 *
 	 * @since 0.0.3
 	 */
-	static final class USE_PARAMETER implements IEvent {}
+	static final class USE_PARAMETER {}
 }

@@ -11,7 +11,7 @@ import org.junit.jupiter.api.*;
  * @author Leon Hofmeister
  * @since 0.1.0
  */
-class CancelTest implements EventListener {
+class CancelTest {
 
 	EventBus	bus;
 	int			hits;

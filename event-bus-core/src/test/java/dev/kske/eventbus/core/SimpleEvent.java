@@ -6,4 +6,4 @@ package dev.kske.eventbus.core;
  * @author Kai S. K. Engelbart
  * @since 0.0.1
  */
-public class SimpleEvent implements IEvent {}
+public class SimpleEvent {}

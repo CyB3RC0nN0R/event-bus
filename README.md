@@ -3,7 +3,7 @@
 ## Introduction
 
 This library allows passing events between different objects without them having a direct reference to each other.
-Any class can be made an event by implementing the `IEvent` interface.
+Any object can serve as an event.
 
 Using an instance of the `EventBus` class, an instant of the event class can be dispatched.
 This means that it will be forwarded to all listeners registered for it at the event bus.
@@ -13,16 +13,13 @@ In addition, a singleton instance of the event bus is provided by the `EventBus#
 To listen to events, register event handling methods using the `Event` annotation.
 For this to work, the method must have a return type of `void` and declare a single parameter of the desired event type.
 Alternatively, a parameter-less event handler can be declared as shown [below](#parameter-less-event-handlers).
-Additionally, the class containing the method must implement the `EventListener` interface.
 
 ## A Simple Example
 
-Lets look at a simple example: we declare the empty class `SimpleEvent` that implements `IEvent` and can thus be used as an event.
+Lets look at a simple example: we declare the empty class `SimpleEvent` whose objects can be used as events.
 
 ```java
-import dev.kske.eventbus.core.IEvent;
-
-public class SimpleEvent implements IEvent {}
+public class SimpleEvent {}
 ```
 
 Next, an event listener for the `SimpleEvent` is declared:
@@ -30,7 +27,7 @@ Next, an event listener for the `SimpleEvent` is declared:
 ```java
 import dev.kske.eventbus.core.*;
 
-public class SimpleEventListener implements EventListener {
+public class SimpleEventListener {
 
     public SimpleEventListener() {
 
@@ -165,7 +162,7 @@ opens my.module to dev.kske.eventbus.core;
 To assist you with writing event listeners, the Event Bus AP (Annotation Processor) module enforces correct usage of the `@Event` annotation during compile time.
 This reduces difficult-to-debug bugs that occur during runtime to compile-time errors which can be easily fixed.
 
-The event annotation processor detects invalid event handlers, missing `EventListener` implementations, event type issues with more to come in future versions.
+The event annotation processor detects invalid event handlers and event type issues with more to come in future versions.
 
 When using Maven, it can be registered using the Maven Compiler Plugin:
 

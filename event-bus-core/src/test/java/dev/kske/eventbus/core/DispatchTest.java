@@ -10,7 +10,7 @@ import org.junit.jupiter.api.*;
  * @author Kai S. K. Engelbart
  * @since 0.0.1
  */
-class DispatchTest implements EventListener {
+class DispatchTest {
 
 	EventBus	bus;
 	static int	hits;
@@ -27,7 +27,7 @@ class DispatchTest implements EventListener {
 	}
 
 	/**
-	 * Tests {@link EventBus#dispatch(IEvent)} with multiple handler priorities, a subtype handler
+	 * Tests {@link EventBus#dispatch(Object)} with multiple handler priorities, a subtype handler
 	 * and a static handler.
 	 *
 	 * @since 0.0.1
