@@ -73,20 +73,18 @@ private void onSimpleEvent(SimpleEvent event) { ... }
 
 ## Event Handler Execution Order
 
-Sometimes when using multiple handlers for one event, it might be useful to know in which order they will be executed.
-Event Bus provides a mechanism to ensure the correct propagation of events: the `priority`.
+Sometimes when using multiple handlers for one event, it might be useful to define in which order they will be executed.
+Event Bus assigns a priority to every handler, which is `100` by default, but can be explicitly set using the `@Priority` annotation in addition to `@Event`:
 
-Priority can be set on the `@Event` annotation like that:
 ```java
-@Event(priority=100)
+@Event
+@Priority(250)
+private void onSimpleEvent(SimpleEvent event) { ... }
 ```
 
-The default priority for events is `100`.
-
 **Important:**
-Events are dispatched top-down, meaning the event handler with the highest priority will be executed first.
-
-If no priority is set or multiple handlers have the same priority, the order of execution is undefined.
+Events are dispatched to handlers in descending order of their priority.
+The execution order is undefined for handlers with the same priority.
 
 ## Parameter-Less Event Handlers
 
@@ -108,12 +106,14 @@ In some cases it might be useful to stop the propagation of an event.
 Event Bus makes this possible with event consumption:
 
 ```java
-@Event(eventType = SimpleEvent.class, priority=100)
+@Event(eventType = SimpleEvent.class)
+@Priority(100)
 private void onSimpleEvent() {
 	EventBus.getInstance().cancel();
 }
 
-@Event(eventType = SimpleEvent.class, priority=50)
+@Event(eventType = SimpleEvent.class)
+@Priority(50)
 private void onSimpleEvent2() {
 	System.out.println("Will not be printed!");
 }

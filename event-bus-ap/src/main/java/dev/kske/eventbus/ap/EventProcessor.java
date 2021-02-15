@@ -80,7 +80,7 @@ public class EventProcessor extends AbstractProcessor {
 				if (declaredElement.getKind() == ElementKind.INTERFACE
 					|| declaredElement.getModifiers().contains(Modifier.ABSTRACT))
 					warning(paramElement,
-						"Parameter should be instantiable or handler should include subtypes");
+						"Parameter should be instantiable or handler should use @Polymorphic");
 			}
 
 			// Check listener for interface implementation

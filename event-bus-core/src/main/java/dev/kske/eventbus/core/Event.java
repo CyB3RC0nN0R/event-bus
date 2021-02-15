@@ -22,22 +22,12 @@ import java.lang.annotation.*;
  * @author Kai S. K. Engelbart
  * @since 0.0.1
  * @see Polymorphic
+ * @see Priority
  */
 @Documented
 @Retention(RUNTIME)
 @Target(METHOD)
 public @interface Event {
-
-	/**
-	 * Defines the priority of the event handler. Handlers are executed in descending order of their
-	 * priority.
-	 * <p>
-	 * The execution order of handlers with the same priority is undefined.
-	 *
-	 * @return the priority of the event handler
-	 * @since 0.0.1
-	 */
-	int priority() default 100;
 
 	/**
 	 * Defines the event type the handler listens to. If this value is set, the handler is not

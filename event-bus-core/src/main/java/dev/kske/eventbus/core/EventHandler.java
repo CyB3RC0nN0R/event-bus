@@ -13,11 +13,20 @@ import dev.kske.eventbus.core.Event.USE_PARAMETER;
  */
 final class EventHandler implements Comparable<EventHandler> {
 
+	/**
+	 * The priority assigned to every event handler without an explicitly defined priority.
+	 *
+	 * @since 1.0.0
+	 * @see Priority
+	 */
+	public static final int DEFAULT_PRIORITY = 100;
+
 	private final EventListener				listener;
 	private final Method					method;
 	private final Event						annotation;
 	private final Class<? extends IEvent>	eventType;
 	private final boolean					polymorphic;
+	private final int						priority;
 
 	/**
 	 * Constructs an event handler.
@@ -58,14 +67,17 @@ final class EventHandler implements Comparable<EventHandler> {
 		}
 		this.eventType	= eventType;
 		polymorphic		= method.isAnnotationPresent(Polymorphic.class);
+		priority		= method.isAnnotationPresent(Priority.class)
+			? method.getAnnotation(Priority.class).value()
+			: DEFAULT_PRIORITY;
 
 		// Allow access if the method is non-public
 		method.setAccessible(true);
 	}
 
 	/**
-	 * Compares this to another event handler based on {@link Event#priority()}. In case of equal
-	 * priority a non-zero value based on hash codes is returned.
+	 * Compares this to another event handler based on priority. In case of equal priority a
+	 * non-zero value based on hash codes is returned.
 	 * <p>
 	 * This is used to retrieve event handlers in order of descending priority from a tree set.
 	 *
@@ -73,7 +85,7 @@ final class EventHandler implements Comparable<EventHandler> {
 	 */
 	@Override
 	public int compareTo(EventHandler other) {
-		int priority = other.annotation.priority() - annotation.priority();
+		int priority = other.priority - this.priority;
 		if (priority == 0)
 			priority = listener.hashCode() - other.listener.hashCode();
 		return priority == 0 ? hashCode() - other.hashCode() : priority;
@@ -81,7 +93,8 @@ final class EventHandler implements Comparable<EventHandler> {
 
 	@Override
 	public String toString() {
-		return String.format("EventHandler[method=%s, annotation=%s]", method, annotation);
+		return String.format("EventHandler[method=%s, eventType=%s, polymorphic=%b, priority=%d]",
+			method, annotation.eventType(), polymorphic, priority);
 	}
 
 	/**
@@ -109,16 +122,17 @@ final class EventHandler implements Comparable<EventHandler> {
 	EventListener getListener() { return listener; }
 
 	/**
-	 * @return the event annotation
-	 * @since 0.0.1
+	 * @return the event type this handler listens to
+	 * @since 0.0.3
 	 */
-	Event getAnnotation() { return annotation; }
+	Class<? extends IEvent> getEventType() { return eventType; }
 
 	/**
-	 * @return the priority of the event annotation
+	 * @return the priority of this handler
 	 * @since 0.0.1
+	 * @see Priority
 	 */
-	int getPriority() { return annotation.priority(); }
+	int getPriority() { return priority; }
 
 	/**
 	 * @return whether this handler is polymorphic
@@ -126,10 +140,4 @@ final class EventHandler implements Comparable<EventHandler> {
 	 * @see Polymorphic
 	 */
 	boolean isPolymorphic() { return polymorphic; }
-
-	/**
-	 * @return the event type this handler listens to
-	 * @since 0.0.3
-	 */
-	Class<? extends IEvent> getEventType() { return eventType; }
 }
