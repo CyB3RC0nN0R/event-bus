@@ -60,8 +60,6 @@ public class EventProcessor extends AbstractProcessor {
 					"Either the method or the annotation must define the event type");
 			else if (eventHandler.getParameters().size() > 1)
 				error(eventHandler, "Method must not have more than one parameter");
-			else if (eventHandler.getReturnType().getKind() != TypeKind.VOID)
-				error(eventHandler, "Method must return void");
 			else
 				pass = true;
 

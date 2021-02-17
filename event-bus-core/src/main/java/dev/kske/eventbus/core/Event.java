@@ -6,17 +6,10 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import java.lang.annotation.*;
 
 /**
- * Indicates that a method is an event handler. To be successfully used as such, the method has to
- * comply with the following specifications:
- * <ul>
- * <li>Specifying an event type by either
- * <ul>
- * <li>Declaring one object parameter</li>
- * <li>Defining the class of the event using the annotation value</li>
- * </ul>
- * </li>
- * <li>Return type of {@code void}</li>
- * </ul>
+ * Indicates that a method is an event handler.
+ * <p>
+ * To be successfully used as such, the method has to specify the event type by either declaring one
+ * parameter of that type or setting the annotation value to the corresponding class.
  *
  * @author Kai S. K. Engelbart
  * @since 0.0.1

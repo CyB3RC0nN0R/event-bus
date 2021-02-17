@@ -43,7 +43,7 @@ final class EventHandler implements Comparable<EventHandler> {
 		this.method		= method;
 		useParameter	= annotation.value() == USE_PARAMETER.class;
 
-		// Check for correct method signature and return type
+		// Check handler signature
 		if (method.getParameterCount() == 0 && useParameter)
 			throw new EventBusException(method + " does not define an event type!");
 
@@ -52,9 +52,6 @@ final class EventHandler implements Comparable<EventHandler> {
 
 		if (method.getParameterCount() > 1)
 			throw new EventBusException(method + " defines more than one parameter!");
-
-		if (!method.getReturnType().equals(void.class))
-			throw new EventBusException(method + " does not have a return type of void!");
 
 		// Determine handler properties
 		eventType	= useParameter ? method.getParameterTypes()[0] : annotation.value();

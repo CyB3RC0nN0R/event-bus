@@ -5,13 +5,13 @@
 This library allows passing events between different objects without them having a direct reference to each other.
 Any object can serve as an event.
 
-Using an instance of the `EventBus` class, an instant of the event class can be dispatched.
+Using an instance of the `EventBus` class, an instance of the event class can be dispatched.
 This means that it will be forwarded to all listeners registered for it at the event bus.
 
 In addition, a singleton instance of the event bus is provided by the `EventBus#getInstance()` method.
 
 To listen to events, register event handling methods using the `Event` annotation.
-For this to work, the method must have a return type of `void` and declare a single parameter of the desired event type.
+For this to work, the method must declare a single parameter of the desired event type.
 Alternatively, a parameter-less event handler can be declared as shown [below](#parameter-less-event-handlers).
 
 ## A Simple Example
@@ -125,21 +125,14 @@ As event handlers are ordered by priority, it is not defined which of them will 
 
 ## Installation
 
-Event Bus is currently hosted at [kske.dev](https://kske.dev/maven-repo/dev/kske/event-bus/).
-To include it inside your project, just add the Maven repository and the dependency to your `pom.xml`:
+Event Bus is available in Maven Central.
+To include it inside your project, just add the following dependency to your `pom.xml`:
 
 ```xml
-<repositories>
-	<repository>
-		<id>kske-repo</id>
-		<url>https://kske.dev/maven-repo</url>
-	</repository>
-</repositories>
-
 <dependencies>
     <dependency>
         <groupId>dev.kske</groupId>
-        <artifactId>event-bus</artifactId>
+        <artifactId>event-bus-core</artifactId>
         <version>1.0.0</version>
     </dependency>
 </dependencies>
@@ -175,7 +168,7 @@ When using Maven, it can be registered using the Maven Compiler Plugin:
         <annotationProcessorPaths>
             <annotationProcessorPath>
                 <groupId>dev.kske</groupId>
-                <artifactId>event-bus-ap</artifactId>
+                <artifactId>event-bus-proc</artifactId>
                 <version>1.0.0</version>
             </annotationProcessorPath>
         </annotationProcessorPaths>

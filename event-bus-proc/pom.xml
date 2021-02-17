@@ -50,6 +50,21 @@
 						</goals>
 						<configuration>
 							<minimizeJar>true</minimizeJar>
+							<filters>
+								<filter>
+									<artifact>dev.kske:event-bus-core</artifact>
+									<excludes>
+										<exclude>META-INF/MANIFEST.MF</exclude>
+									</excludes>
+								</filter>
+								<filter>
+									<artifact>*:*</artifact>
+									<excludes>
+										<exclude>module-info.class</exclude>
+										<exclude>META-INF/maven/**</exclude>
+									</excludes>
+								</filter>
+							</filters>
 						</configuration>
 					</execution>
 				</executions>
