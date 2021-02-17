@@ -34,9 +34,10 @@ public class EventProcessor extends AbstractProcessor {
 
 	private void processRound(Set<ExecutableElement> eventHandlers) {
 		for (ExecutableElement eventHandler : eventHandlers) {
-			Event eventAnnotation = eventHandler.getAnnotation(Event.class);
+			Event		eventAnnotation	= eventHandler.getAnnotation(Event.class);
+			TypeMirror	eventType;
 
-			// Determine how the event type is defined
+			// Determine the event type and how it is defined
 			boolean useParameter;
 			try {
 				eventAnnotation.value();
@@ -45,36 +46,49 @@ public class EventProcessor extends AbstractProcessor {
 			} catch (MirroredTypeException e) {
 
 				// Task failed successfully
-				useParameter = processingEnv.getTypeUtils().isSameType(e.getTypeMirror(),
+				eventType		= e.getTypeMirror();
+				useParameter	= processingEnv.getTypeUtils().isSameType(eventType,
 					getTypeMirror(Event.USE_PARAMETER.class));
 			}
 
-			// Check for correct method signature and return type
-			if (eventHandler.getParameters().size() == 0 && useParameter)
+			// Check handler signature
+			boolean pass = false;
+			if (useParameter && eventHandler.getParameters().size() == 0)
 				error(eventHandler, "The method or the annotation must define the event type");
-
-			if (eventHandler.getParameters().size() == 1 && !useParameter)
+			else if (!useParameter && eventHandler.getParameters().size() == 1)
 				error(eventHandler,
 					"Either the method or the annotation must define the event type");
-
-			if (eventHandler.getParameters().size() > 1)
+			else if (eventHandler.getParameters().size() > 1)
 				error(eventHandler, "Method must not have more than one parameter");
-
-			if (eventHandler.getReturnType().getKind() != TypeKind.VOID)
+			else if (eventHandler.getReturnType().getKind() != TypeKind.VOID)
 				error(eventHandler, "Method must return void");
+			else
+				pass = true;
 
-			// Get first parameter as type and element
-			var	paramElement	= eventHandler.getParameters().get(0);
-			var	paramType		= paramElement.asType();
+			// Abort checking if the handler signature is incorrect
+			if (!pass)
+				continue;
+
+			// Additional checks if parameter is used
+			if (useParameter) {
+				VariableElement paramElement = eventHandler.getParameters().get(0);
+				eventType = paramElement.asType();
+
+				// Check if parameter is object
+				// Abort checking otherwise
+				if (eventType.getKind() != TypeKind.DECLARED) {
+					error(paramElement, "Event must be an object");
+					continue;
+				}
+			}
 
 			// Check for handlers for abstract types that aren't polymorphic
+			Element eventElement = ((DeclaredType) eventType).asElement();
 			if (eventHandler.getAnnotation(Polymorphic.class) == null
-				&& paramType.getKind() == TypeKind.DECLARED) {
-				var declaredElement = ((DeclaredType) paramType).asElement();
-				if (declaredElement.getKind() == ElementKind.INTERFACE
-					|| declaredElement.getModifiers().contains(Modifier.ABSTRACT))
-					warning(paramElement,
-						"Parameter should be instantiable or handler should use @Polymorphic");
+				&& (eventElement.getKind() == ElementKind.INTERFACE
+					|| eventElement.getModifiers().contains(Modifier.ABSTRACT))) {
+				warning(eventHandler,
+					"Parameter should be instantiable or handler should use @Polymorphic");
 			}
 		}
 	}

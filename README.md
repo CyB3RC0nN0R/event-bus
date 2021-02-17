@@ -157,9 +157,9 @@ If you intend to use event handlers that are inaccessible to Event Bus by means 
 opens my.module to dev.kske.eventbus.core;
 ```
 
-## Compile-Time Error Checking with Event Bus AP
+## Compile-Time Error Checking with Event Bus Proc
 
-To assist you with writing event listeners, the Event Bus AP (Annotation Processor) module enforces correct usage of the `@Event` annotation during compile time.
+To assist you with writing event listeners, the Event Bus Proc (Annotation Processor) module enforces correct usage of the `@Event` annotation during compile time.
 This reduces difficult-to-debug bugs that occur during runtime to compile-time errors which can be easily fixed.
 
 The event annotation processor detects invalid event handlers and event type issues with more to come in future versions.
