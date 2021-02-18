@@ -80,14 +80,20 @@ public class EventProcessor extends AbstractProcessor {
 				}
 			}
 
+			// Detect missing or useless @Polymorphic
+			boolean	polymorphic		= eventHandler.getAnnotation(Polymorphic.class) != null;
+			Element	eventElement	= ((DeclaredType) eventType).asElement();
+
 			// Check for handlers for abstract types that aren't polymorphic
-			Element eventElement = ((DeclaredType) eventType).asElement();
-			if (eventHandler.getAnnotation(Polymorphic.class) == null
-				&& (eventElement.getKind() == ElementKind.INTERFACE
-					|| eventElement.getModifiers().contains(Modifier.ABSTRACT))) {
+			if (!polymorphic && (eventElement.getKind() == ElementKind.INTERFACE
+				|| eventElement.getModifiers().contains(Modifier.ABSTRACT)))
 				warning(eventHandler,
 					"Parameter should be instantiable or handler should use @Polymorphic");
-			}
+
+			// Check for handlers for final types that are polymorphic
+			else if (polymorphic && eventElement.getModifiers().contains(Modifier.FINAL))
+				warning(eventHandler,
+					"@Polymorphic should be removed as parameter cannot be subclassed");
 		}
 	}
 
