@@ -63,6 +63,10 @@ public class EventProcessor extends AbstractProcessor {
 			else
 				pass = true;
 
+			// Warn the user about unused return values
+			if (useParameter && eventHandler.getReturnType().getKind() != TypeKind.VOID)
+					warning(eventHandler, "Unused return value");
+
 			// Abort checking if the handler signature is incorrect
 			if (!pass)
 				continue;
