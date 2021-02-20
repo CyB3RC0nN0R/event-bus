@@ -18,8 +18,13 @@ public final class DeadEvent {
 		this.event		= event;
 	}
 
+	@Override
+	public String toString() {
+		return String.format("DeadEvent[eventBus=%s, event=%s]", eventBus, event);
+	}
+
 	/**
-	 * @return the event bus that originated this event
+	 * @return the event bus that dispatched this event
 	 * @since 1.1.0
 	 */
 	public EventBus getEventBus() { return eventBus; }

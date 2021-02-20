@@ -27,8 +27,8 @@ class DispatchTest {
 	}
 
 	/**
-	 * Tests {@link EventBus#dispatch(Object)} with multiple handler priorities, a subtype handler
-	 * and a static handler.
+	 * Tests {@link EventBus#dispatch(Object)} with multiple handler priorities, a polymorphic
+	 * handler and a static handler.
 	 *
 	 * @since 0.0.1
 	 */

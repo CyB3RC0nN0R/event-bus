@@ -84,7 +84,13 @@ public final class EventBus {
 					handlers.next().execute(event);
 				}
 		} else if (!(event instanceof DeadEvent)) {
+			
+			// Dispatch dead event
 			dispatch(new DeadEvent(this, event));
+		} else {
+			
+			// Warn about the dead event not being handled
+			logger.log(Level.WARNING, "{0} not handled", event);
 		}
 
 		// Reset dispatch state
