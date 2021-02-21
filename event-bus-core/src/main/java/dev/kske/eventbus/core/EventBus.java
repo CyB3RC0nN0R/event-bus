@@ -73,14 +73,25 @@ public final class EventBus {
 		var state = dispatchState.get();
 		state.isDispatching = true;
 
-		for (var handler : getHandlersFor(event.getClass()))
-			if (state.isCancelled) {
-				logger.log(Level.INFO, "Cancelled dispatching event {0}", event);
-				state.isCancelled = false;
-				break;
-			} else {
-				handler.execute(event);
-			}
+		Iterator<EventHandler> handlers = getHandlersFor(event.getClass());
+		if (handlers.hasNext()) {
+			while (handlers.hasNext())
+				if (state.isCancelled) {
+					logger.log(Level.INFO, "Cancelled dispatching event {0}", event);
+					state.isCancelled = false;
+					break;
+				} else {
+					handlers.next().execute(event);
+				}
+		} else if (!(event instanceof DeadEvent)) {
+			
+			// Dispatch dead event
+			dispatch(new DeadEvent(this, event));
+		} else {
+			
+			// Warn about the dead event not being handled
+			logger.log(Level.WARNING, "{0} not handled", event);
+		}
 
 		// Reset dispatch state
 		state.isDispatching = false;
@@ -89,25 +100,26 @@ public final class EventBus {
 	}
 
 	/**
-	 * Searches for the event handlers bound to an event class.
+	 * Searches for the event handlers bound to an event class. This includes polymorphic handlers
+	 * that are bound to a supertype of the event class.
 	 *
 	 * @param eventClass the event class to use for the search
-	 * @return all event handlers registered for the event class
+	 * @return an iterator over the applicable handlers in descending order of priority
 	 * @since 0.0.1
 	 */
-	private List<EventHandler> getHandlersFor(Class<?> eventClass) {
+	private Iterator<EventHandler> getHandlersFor(Class<?> eventClass) {
 
 		// Get handlers defined for the event class
-		Set<EventHandler> handlers = bindings.getOrDefault(eventClass, new TreeSet<>());
+		TreeSet<EventHandler> handlers = bindings.getOrDefault(eventClass, new TreeSet<>());
 
-		// Get subtype handlers
+		// Get polymorphic handlers
 		for (var binding : bindings.entrySet())
 			if (binding.getKey().isAssignableFrom(eventClass))
 				for (var handler : binding.getValue())
 					if (handler.isPolymorphic())
 						handlers.add(handler);
 
-		return new ArrayList<>(handlers);
+		return handlers.iterator();
 	}
 
 	/**

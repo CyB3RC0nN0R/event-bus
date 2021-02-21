@@ -68,7 +68,7 @@ final class EventHandler implements Comparable<EventHandler> {
 	 * Compares this to another event handler based on priority. In case of equal priority a
 	 * non-zero value based on hash codes is returned.
 	 * <p>
-	 * This is used to retrieve event handlers in order of descending priority from a tree set.
+	 * This is used to retrieve event handlers in descending order of priority from a tree set.
 	 *
 	 * @since 0.0.1
 	 */
