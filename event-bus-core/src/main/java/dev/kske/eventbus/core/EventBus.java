@@ -89,7 +89,7 @@ public final class EventBus {
 						if (event instanceof DeadEvent || event instanceof ExceptionEvent)
 
 							// Warn about system event not being handled
-							logger.log(Level.WARNING, event + " not handled", e);
+							logger.log(Level.WARNING, event + " not handled due to exception", e);
 						else
 
 							// Dispatch exception event
