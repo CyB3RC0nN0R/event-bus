@@ -123,6 +123,38 @@ This applies to all event handlers that would have been executed after the one c
 Avoid cancelling events while using multiple event handlers with the same priority.
 As event handlers are ordered by priority, it is not defined which of them will be executed after the event has been consumed.
 
+## System Events
+
+To accommodate for special circumstances in an event distribution, system events have been introduced.
+At the moment, there are two system events, which are explained in this section.
+
+### Detecting Unhandled Events
+
+When an event is dispatched but not delivered to any handler, a dead event is dispatched that wraps the original event.
+You can declare a dead event handler to respond to this situation:
+
+```java
+private void onDeadEvent(DeadEvent deadEvent) { ... }
+```
+
+### Detecting Exceptions Thrown by Event Handlers
+
+When an event handler throws an exception, an exception event is dispatched that wraps the original event.
+A exception handler is declared as follows:
+
+```java
+private void onExceptionEvent(ExceptionEvent ExceptionEvent) { ... }
+```
+
+Both system events reference the event bus that caused them and a warning is logged if they are unhandled.
+
+### What About Endless Recursion Caused By Dead Events and Exception Events?
+
+As one might imagine, an unhandled dead event would theoretically lead to an endless recursion.
+The same applies when an exception event handler throws an exception.
+
+To avoid this, system events never cause system events and instead just issue a warning to the logger.
+
 ## Installation
 
 Event Bus is available in Maven Central.

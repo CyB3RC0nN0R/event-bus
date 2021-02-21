@@ -2,6 +2,7 @@ package dev.kske.eventbus.core;
 
 import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -63,6 +64,7 @@ public final class EventBus {
 	 * priority.
 	 *
 	 * @param event the event to dispatch
+	 * @throws EventBusException if an event handler isn't accessible or has an invalid signature
 	 * @since 0.0.1
 	 */
 	public void dispatch(Object event) {
@@ -81,16 +83,27 @@ public final class EventBus {
 					state.isCancelled = false;
 					break;
 				} else {
-					handlers.next().execute(event);
+					try {
+						handlers.next().execute(event);
+					} catch (InvocationTargetException e) {
+						if (event instanceof DeadEvent || event instanceof ExceptionEvent)
+
+							// Warn about system event not being handled
+							logger.log(Level.WARNING, event + " not handled due to exception", e);
+						else
+
+							// Dispatch exception event
+							dispatch(new ExceptionEvent(this, event, e.getCause()));
+					}
 				}
-		} else if (!(event instanceof DeadEvent)) {
-			
-			// Dispatch dead event
-			dispatch(new DeadEvent(this, event));
-		} else {
-			
+		} else if (event instanceof DeadEvent || event instanceof ExceptionEvent) {
+
 			// Warn about the dead event not being handled
 			logger.log(Level.WARNING, "{0} not handled", event);
+		} else {
+
+			// Dispatch dead event
+			dispatch(new DeadEvent(this, event));
 		}
 
 		// Reset dispatch state
