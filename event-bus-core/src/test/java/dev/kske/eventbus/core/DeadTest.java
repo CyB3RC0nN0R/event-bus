@@ -31,7 +31,7 @@ class DeadTest {
 
 	/**
 	 * Tests how the event bus reacts to an unhandled dead event. This should not lead to an
-	 * exception or endless recursion and instead be logged.
+	 * exception or an endless recursion and should be logged instead.
 	 * 
 	 * @since 1.1.0
 	 */

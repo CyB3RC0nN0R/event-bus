@@ -91,17 +91,21 @@ final class EventHandler implements Comparable<EventHandler> {
 	 * Executes the event handler.
 	 *
 	 * @param event the event used as the method parameter
-	 * @throws EventBusException if the handler throws an exception
+	 * @throws EventBusException         if the event handler isn't accessible or has an invalid
+	 *                                   signature
+	 * @throws InvocationTargetException if the handler throws an exception
 	 * @since 0.0.1
 	 */
-	void execute(Object event) throws EventBusException {
+	void execute(Object event) throws EventBusException, InvocationTargetException {
 		try {
 			if (useParameter)
 				method.invoke(listener, event);
 			else
 				method.invoke(listener);
-		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-			throw new EventBusException("Failed to invoke event handler!", e);
+		} catch (IllegalArgumentException e) {
+			throw new EventBusException("Event handler rejected target / argument!", e);
+		} catch (IllegalAccessException e) {
+			throw new EventBusException("Event handler is not accessible!", e);
 		}
 	}
 
