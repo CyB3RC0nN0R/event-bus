@@ -1,6 +1,6 @@
 package dev.kske.eventbus.core;
 
-import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.ElementType.*;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 import java.lang.annotation.*;
@@ -8,6 +8,9 @@ import java.lang.annotation.*;
 /**
  * Defines the priority of an event handler. Handlers are executed in descending order of their
  * priority.
+ * <p>
+ * When used on a type, the value applies to all event handlers declared within that type that don't
+ * define a value on their own.
  * <p>
  * Handlers without this annotation have the default priority of 100.
  * <p>
@@ -19,7 +22,7 @@ import java.lang.annotation.*;
  */
 @Documented
 @Retention(RUNTIME)
-@Target(METHOD)
+@Target({ METHOD, TYPE })
 public @interface Priority {
 
 	/**
