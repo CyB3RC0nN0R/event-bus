@@ -13,14 +13,6 @@ import dev.kske.eventbus.core.Event.USE_PARAMETER;
  */
 final class EventHandler implements Comparable<EventHandler> {
 
-	/**
-	 * The priority assigned to every event handler without an explicitly defined priority.
-	 *
-	 * @since 1.0.0
-	 * @see Priority
-	 */
-	public static final int DEFAULT_PRIORITY = 100;
-
 	private final Object	listener;
 	private final Method	method;
 	private final Class<?>	eventType;
@@ -31,14 +23,17 @@ final class EventHandler implements Comparable<EventHandler> {
 	/**
 	 * Constructs an event handler.
 	 *
-	 * @param listener   the listener containing the handler
-	 * @param method     the handler method
-	 * @param annotation the event annotation
+	 * @param listener        the listener containing the handler
+	 * @param method          the handler method
+	 * @param annotation      the event annotation
+	 * @param defPolymorphism the predefined polymorphism (default or listener-level)
+	 * @param defPriority     the predefined priority (default or listener-level)
 	 * @throws EventBusException if the method or the annotation do not comply with the
 	 *                           specification
 	 * @since 0.0.1
 	 */
-	EventHandler(Object listener, Method method, Event annotation) throws EventBusException {
+	EventHandler(Object listener, Method method, Event annotation, boolean defPolymorphism,
+		int defPriority) throws EventBusException {
 		this.listener	= listener;
 		this.method		= method;
 		useParameter	= annotation.value() == USE_PARAMETER.class;
@@ -55,10 +50,12 @@ final class EventHandler implements Comparable<EventHandler> {
 
 		// Determine handler properties
 		eventType	= useParameter ? method.getParameterTypes()[0] : annotation.value();
-		polymorphic	= method.isAnnotationPresent(Polymorphic.class);
+		polymorphic	= method.isAnnotationPresent(Polymorphic.class)
+			? method.getAnnotation(Polymorphic.class).value()
+			: defPolymorphism;
 		priority	= method.isAnnotationPresent(Priority.class)
 			? method.getAnnotation(Priority.class).value()
-			: DEFAULT_PRIORITY;
+			: defPriority;
 
 		// Allow access if the method is non-public
 		method.setAccessible(true);
@@ -94,6 +91,7 @@ final class EventHandler implements Comparable<EventHandler> {
 	 * @throws EventBusException         if the event handler isn't accessible or has an invalid
 	 *                                   signature
 	 * @throws InvocationTargetException if the handler throws an exception
+	 * @throws EventBusException         if the handler has the wrong signature or is inaccessible
 	 * @since 0.0.1
 	 */
 	void execute(Object event) throws EventBusException, InvocationTargetException {
