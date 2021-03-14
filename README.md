@@ -97,6 +97,13 @@ private void onSimpleEvent() {
 
 Make sure that you **do not** both declare a parameter and specify the event type in the annotation, as this would be ambiguous.
 
+## Listener-Level Properties
+
+When defining a dedicated event listener that, for example, performs pre- or post-processing, all event handlers will probably have the same non-standard priority.
+Instead of defining that priority for each handler, it can be defined at the listener level by annotating the listener itself.
+
+The same applies to polymorphism.
+
 ## Event Consumption
 
 In some cases it might be useful to stop the propagation of an event.
