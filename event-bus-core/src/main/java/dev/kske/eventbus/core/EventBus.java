@@ -67,7 +67,7 @@ public final class EventBus {
 	 * @throws EventBusException if an event handler isn't accessible or has an invalid signature
 	 * @since 0.0.1
 	 */
-	public void dispatch(Object event) {
+	public void dispatch(Object event) throws EventBusException {
 		Objects.requireNonNull(event);
 		logger.log(Level.INFO, "Dispatching event {0}", event);
 
@@ -90,6 +90,10 @@ public final class EventBus {
 
 							// Warn about system event not being handled
 							logger.log(Level.WARNING, event + " not handled due to exception", e);
+						else if (e.getCause() instanceof Error)
+
+							// Transparently pass error to the caller
+							throw (Error) e.getCause();
 						else
 
 							// Dispatch exception event
