@@ -179,7 +179,7 @@ public final class EventBus {
 			polymorphic = listener.getClass().getAnnotation(Polymorphic.class).value();
 
 		// Predefined handler priority
-		int priority = 100;
+		int priority = DEFAULT_PRIORITY;
 		if (listener.getClass().isAnnotationPresent(Priority.class))
 			priority = listener.getClass().getAnnotation(Priority.class).value();
 
