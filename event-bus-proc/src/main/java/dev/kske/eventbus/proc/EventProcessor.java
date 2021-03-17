@@ -65,7 +65,7 @@ public class EventProcessor extends AbstractProcessor {
 
 			// Warn the user about unused return values
 			if (useParameter && eventHandler.getReturnType().getKind() != TypeKind.VOID)
-					warning(eventHandler, "Unused return value");
+				warning(eventHandler, "Unused return value");
 
 			// Abort checking if the handler signature is incorrect
 			if (!pass)
@@ -84,9 +84,45 @@ public class EventProcessor extends AbstractProcessor {
 				}
 			}
 
+			// Get the listener containing this handler
+			TypeElement listener = (TypeElement) eventHandler.getEnclosingElement();
+
+			// Default properties
+			boolean	defPolymorphic	= false;
+			int		defPriority		= 100;
+
+			// Listener-level polymorphism
+			Polymorphic	listenerPolymorphic		= listener.getAnnotation(Polymorphic.class);
+			boolean		hasListenerPolymorphic	= listenerPolymorphic != null;
+
+			// Listener-level priority
+			Priority	listenerPriority	= listener.getAnnotation(Priority.class);
+			boolean		hasListenerPriority	= listenerPriority != null;
+
+			// Effective polymorphism
+			boolean polymorphic =
+				hasListenerPolymorphic ? listenerPolymorphic.value() : defPolymorphic;
+			boolean	hasHandlerPolymorphic	= eventHandler.getAnnotation(Polymorphic.class) != null;
+			if (hasHandlerPolymorphic)
+				polymorphic = eventHandler.getAnnotation(Polymorphic.class).value();
+
+			// Effective priority
+			int priority = hasListenerPriority ? listenerPriority.value() : defPriority;
+			boolean	hasHandlerPriority	= eventHandler.getAnnotation(Priority.class) != null;
+			if (hasHandlerPriority)
+				priority = eventHandler.getAnnotation(Priority.class).value();
+
+			// Detect useless polymorphism redefinition
+			if (hasListenerPolymorphic && hasHandlerPolymorphic
+				&& listenerPolymorphic.value() == polymorphic)
+				warning(eventHandler, "@Polymorphism is already defined at listener level");
+
+			// Detect useless priority redefinition
+			if (hasListenerPriority && hasHandlerPriority && listenerPriority.value() == priority)
+				warning(eventHandler, "@Priority is already defined at the listener level");
+
 			// Detect missing or useless @Polymorphic
-			boolean	polymorphic		= eventHandler.getAnnotation(Polymorphic.class) != null;
-			Element	eventElement	= ((DeclaredType) eventType).asElement();
+			Element eventElement = ((DeclaredType) eventType).asElement();
 
 			// Check for handlers for abstract types that aren't polymorphic
 			if (!polymorphic && (eventElement.getKind() == ElementKind.INTERFACE

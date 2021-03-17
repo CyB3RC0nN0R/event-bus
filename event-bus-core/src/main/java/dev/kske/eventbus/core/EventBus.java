@@ -30,6 +30,14 @@ public final class EventBus {
 		boolean isDispatching, isCancelled;
 	}
 
+	/**
+	 * The priority assigned to every event handler without an explicitly defined priority.
+	 *
+	 * @since 1.1.0
+	 * @see Priority
+	 */
+	public static final int DEFAULT_PRIORITY = 100;
+
 	private static volatile EventBus singletonInstance;
 
 	private static final Logger logger = System.getLogger(EventBus.class.getName());
@@ -169,6 +177,16 @@ public final class EventBus {
 		logger.log(Level.INFO, "Registering event listener {0}", listener.getClass().getName());
 		boolean handlerBound = false;
 
+		// Predefined handler polymorphism
+		boolean polymorphic = false;
+		if (listener.getClass().isAnnotationPresent(Polymorphic.class))
+			polymorphic = listener.getClass().getAnnotation(Polymorphic.class).value();
+
+		// Predefined handler priority
+		int priority = DEFAULT_PRIORITY;
+		if (listener.getClass().isAnnotationPresent(Priority.class))
+			priority = listener.getClass().getAnnotation(Priority.class).value();
+
 		registeredListeners.add(listener);
 		for (var method : listener.getClass().getDeclaredMethods()) {
 			Event annotation = method.getAnnotation(Event.class);
@@ -178,7 +196,7 @@ public final class EventBus {
 				continue;
 
 			// Initialize and bind the handler
-			var handler = new EventHandler(listener, method, annotation);
+			var handler = new EventHandler(listener, method, annotation, polymorphic, priority);
 			bindings.putIfAbsent(handler.getEventType(), new TreeSet<>());
 			logger.log(Level.DEBUG, "Binding event handler {0}", handler);
 			bindings.get(handler.getEventType())
