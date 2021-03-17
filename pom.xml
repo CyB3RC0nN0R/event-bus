@@ -40,6 +40,19 @@
 		</developer>
 	</developers>
 
+	<contributors>
+		<contributor>
+			<name>Leon Hofmeister</name>
+			<email>leon@kske.dev</email>
+			<url>https://git.kske.dev/delvh</url>
+			<roles>
+				<role>qa</role>
+				<role>tester</role>
+			</roles>
+			<timezone>Europe/Berlin</timezone>
+		</contributor>
+	</contributors>
+
 	<scm>
 		<connection>scm:git:https://git.kske.dev/kske/event-bus.git</connection>
 		<developerConnection>scm:git:ssh://git@git.kske.dev:420/kske/event-bus.git</developerConnection>
