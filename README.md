@@ -45,9 +45,6 @@ public class SimpleEventListener {
 }
 ```
 
-In this case, an event bus is created and used locally.
-In a more sophisticated example the class would acquire an external event bus that is used by multiple classes.
-
 Note that creating static event handlers like this
 
 ```java
