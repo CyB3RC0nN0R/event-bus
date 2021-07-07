@@ -94,14 +94,14 @@ public final class EventBus {
 					try {
 						handlers.next().execute(event);
 					} catch (InvocationTargetException e) {
-						if (event instanceof DeadEvent || event instanceof ExceptionEvent)
-
-							// Warn about system event not being handled
-							logger.log(Level.WARNING, event + " not handled due to exception", e);
-						else if (e.getCause() instanceof Error)
+						if (e.getCause() instanceof Error)
 
 							// Transparently pass error to the caller
 							throw (Error) e.getCause();
+						else if (event instanceof DeadEvent || event instanceof ExceptionEvent)
+
+							// Warn about system event not being handled
+							logger.log(Level.WARNING, event + " not handled due to exception", e);
 						else
 
 							// Dispatch exception event
