@@ -27,7 +27,21 @@ public final class EventBus {
 	 */
 	private static final class DispatchState {
 
-		boolean isDispatching, isCancelled;
+		/**
+		 * Indicates that the last event handler invoked has called {@link EventBus#cancel}. In that
+		 * case, the event is not dispatched further.
+		 *
+		 * @since 0.1.0
+		 */
+		boolean isCancelled;
+
+		/**
+		 * Is incremented when {@link EventBus#dispatch(Object)} is invoked and decremented when it
+		 * finishes. This allows keeping track of nested dispatches.
+		 *
+		 * @since 1.2.0
+		 */
+		int nestingCount;
 	}
 
 	/**
@@ -79,9 +93,11 @@ public final class EventBus {
 		Objects.requireNonNull(event);
 		logger.log(Level.INFO, "Dispatching event {0}", event);
 
-		// Set dispatch state
+		// Look up dispatch state
 		var state = dispatchState.get();
-		state.isDispatching = true;
+
+		// Increment nesting count (becomes > 1 during nested dispatches)
+		++state.nestingCount;
 
 		Iterator<EventHandler> handlers = getHandlersFor(event.getClass());
 		if (handlers.hasNext()) {
@@ -94,14 +110,14 @@ public final class EventBus {
 					try {
 						handlers.next().execute(event);
 					} catch (InvocationTargetException e) {
-						if (event instanceof DeadEvent || event instanceof ExceptionEvent)
-
-							// Warn about system event not being handled
-							logger.log(Level.WARNING, event + " not handled due to exception", e);
-						else if (e.getCause() instanceof Error)
+						if (e.getCause() instanceof Error)
 
 							// Transparently pass error to the caller
 							throw (Error) e.getCause();
+						else if (event instanceof DeadEvent || event instanceof ExceptionEvent)
+
+							// Warn about system event not being handled
+							logger.log(Level.WARNING, event + " not handled due to exception", e);
 						else
 
 							// Dispatch exception event
@@ -118,8 +134,8 @@ public final class EventBus {
 			dispatch(new DeadEvent(this, event));
 		}
 
-		// Reset dispatch state
-		state.isDispatching = false;
+		// Decrement nesting count (becomes 0 when all dispatches on the thread are finished)
+		--state.nestingCount;
 
 		logger.log(Level.DEBUG, "Finished dispatching event {0}", event);
 	}
@@ -155,7 +171,7 @@ public final class EventBus {
 	 */
 	public void cancel() {
 		var state = dispatchState.get();
-		if (state.isDispatching && !state.isCancelled)
+		if (state.nestingCount > 0 && !state.isCancelled)
 			state.isCancelled = true;
 		else
 			throw new EventBusException("Calling thread not an active dispatching thread!");
