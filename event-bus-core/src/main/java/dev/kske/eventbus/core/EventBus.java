@@ -52,26 +52,18 @@ public final class EventBus {
 	 */
 	public static final int DEFAULT_PRIORITY = 100;
 
-	private static volatile EventBus singletonInstance;
+	private static final EventBus singletonInstance = new EventBus();
 
 	private static final Logger logger = System.getLogger(EventBus.class.getName());
 
 	/**
-	 * Produces a singleton instance of the event bus. It is lazily initialized on the first call.
+	 * Returns the default event bus, which is a statically initialized singleton instance.
 	 *
-	 * @return a singleton instance of the event bus.
+	 * @return the default event bus
 	 * @since 0.0.2
 	 */
 	public static EventBus getInstance() {
-		EventBus instance = singletonInstance;
-		if (instance == null)
-			synchronized (EventBus.class) {
-				if ((instance = singletonInstance) == null) {
-					logger.log(Level.DEBUG, "Initializing singleton event bus instance");
-					instance = singletonInstance = new EventBus();
-				}
-			}
-		return instance;
+		return singletonInstance;
 	}
 
 	private final Map<Class<?>, TreeSet<EventHandler>>	bindings			=
