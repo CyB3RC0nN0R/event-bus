@@ -40,6 +40,25 @@ class DispatchTest {
 		bus.dispatch(new SimpleEvent());
 	}
 
+	/**
+	 * Tests {@link EventBus#printExecutionOrder(Class)} based on the currently registered handlers.
+	 *
+	 * @since 1.2.0
+	 */
+	@Test
+	void testPrintExecutionOrder() {
+		String executionOrder = bus.printExecutionOrder(SimpleEvent.class);
+		System.out.println(executionOrder);
+		assertEquals(
+			"Event handler execution order for class dev.kske.eventbus.core.SimpleEvent (3 handler(s)):\n"
+				+ "==========================================================================================\n"
+				+ "EventHandler[method=void dev.kske.eventbus.core.DispatchTest.onSimpleEventFirst(), eventType=class dev.kske.eventbus.core.SimpleEvent, useParameter=false, polymorphic=true, priority=200]\n"
+				+ "EventHandler[method=static void dev.kske.eventbus.core.DispatchTest.onSimpleEventSecond(), eventType=class dev.kske.eventbus.core.SimpleEvent, useParameter=false, polymorphic=false, priority=150]\n"
+				+ "EventHandler[method=void dev.kske.eventbus.core.DispatchTest.onSimpleEventThird(dev.kske.eventbus.core.SimpleEvent), eventType=class dev.kske.eventbus.core.SimpleEvent, useParameter=true, polymorphic=false, priority=100]\n"
+				+ "==========================================================================================",
+			executionOrder);
+	}
+
 	@Event(SimpleEvent.class)
 	@Priority(200)
 	void onSimpleEventFirst() {
