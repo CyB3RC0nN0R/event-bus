@@ -1,14 +1,18 @@
 package dev.kske.eventbus.core;
 
 /**
- * This runtime exception is thrown when an event bus error occurs. This can
- * either occur while registering event listeners with invalid handlers, or when
- * an event handler throws an exception.
+ * This unchecked exception is specific to the event bus and can be thrown under the following
+ * circumstances:
+ * <ul>
+ * <li>An event handler throws an exception (which is stores as the cause)</li>
+ * <li>An event listener with an invalid event handler is registered</li>
+ * <li>{@link EventBus#cancel()} is invoked from outside an active dispatch thread</li>
+ * </ul>
  *
  * @author Kai S. K. Engelbart
  * @since 0.0.1
  */
-public class EventBusException extends RuntimeException {
+public final class EventBusException extends RuntimeException {
 
 	private static final long serialVersionUID = 1L;
 
