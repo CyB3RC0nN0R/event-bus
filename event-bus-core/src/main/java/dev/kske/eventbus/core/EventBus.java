@@ -66,11 +66,28 @@ public final class EventBus {
 		return singletonInstance;
 	}
 
-	private final Map<Class<?>, TreeSet<EventHandler>>	bindings			=
-		new ConcurrentHashMap<>();
-	private final Set<Object>							registeredListeners	=
-		ConcurrentHashMap.newKeySet();
-	private final ThreadLocal<DispatchState>			dispatchState		=
+	/**
+	 * Event handler bindings (target class to handlers registered for that class), does not contain
+	 * other (polymorphic) handlers.
+	 *
+	 * @since 0.0.1
+	 */
+	private final Map<Class<?>, TreeSet<EventHandler>> bindings = new ConcurrentHashMap<>();
+
+	/**
+	 * Stores all registered event listeners (which declare event handlers) and prevents them from
+	 * being garbage collected.
+	 *
+	 * @since 0.0.1
+	 */
+	private final Set<Object> registeredListeners = ConcurrentHashMap.newKeySet();
+
+	/**
+	 * The current event dispatching state, local to each thread.
+	 *
+	 * @since 0.1.0
+	 */
+	private final ThreadLocal<DispatchState> dispatchState =
 		ThreadLocal.withInitial(DispatchState::new);
 
 	/**
@@ -78,7 +95,8 @@ public final class EventBus {
 	 * priority.
 	 *
 	 * @param event the event to dispatch
-	 * @throws EventBusException if an event handler isn't accessible or has an invalid signature
+	 * @throws EventBusException    if an event handler isn't accessible or has an invalid signature
+	 * @throws NullPointerException if the specified event is {@code null}
 	 * @since 0.0.1
 	 */
 	public void dispatch(Object event) throws EventBusException {
@@ -173,8 +191,9 @@ public final class EventBus {
 	 * Registers an event listener at this event bus.
 	 *
 	 * @param listener the listener to register
-	 * @throws EventBusException if the listener is already registered or a declared event handler
-	 *                           does not comply with the specification
+	 * @throws EventBusException    if the listener is already registered or a declared event
+	 *                              handler does not comply with the specification
+	 * @throws NullPointerException if the specified listener is {@code null}
 	 * @since 0.0.1
 	 * @see Event
 	 */
@@ -229,6 +248,7 @@ public final class EventBus {
 		Objects.requireNonNull(listener);
 		logger.log(Level.INFO, "Removing event listener {0}", listener.getClass().getName());
 
+		// Remove bindings from binding map
 		for (var binding : bindings.values()) {
 			var it = binding.iterator();
 			while (it.hasNext()) {
@@ -239,6 +259,8 @@ public final class EventBus {
 				}
 			}
 		}
+
+		// Remove the listener itself
 		registeredListeners.remove(listener);
 	}
 

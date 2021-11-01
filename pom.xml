@@ -9,7 +9,7 @@
 	<packaging>pom</packaging>
 
 	<name>Event Bus</name>
-	<description>An event handling framework for Java utilizing annotations.</description>
+	<description>An event handling library for Java utilizing annotations.</description>
 	<url>https://git.kske.dev/kske/event-bus</url>
 
 	<modules>
