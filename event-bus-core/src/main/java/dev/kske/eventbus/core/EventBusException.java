@@ -4,7 +4,7 @@ package dev.kske.eventbus.core;
  * This unchecked exception is specific to the event bus and can be thrown under the following
  * circumstances:
  * <ul>
- * <li>An event handler throws an exception (which is stores as the cause)</li>
+ * <li>An event handler throws an exception (which is stored as the cause)</li>
  * <li>An event listener with an invalid event handler is registered</li>
  * <li>{@link EventBus#cancel()} is invoked from outside an active dispatch thread</li>
  * </ul>

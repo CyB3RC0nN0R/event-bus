@@ -75,14 +75,15 @@ public final class EventBus {
 	private final Map<Class<?>, TreeSet<EventHandler>> bindings = new ConcurrentHashMap<>();
 
 	/**
-	 * Registered listeners.
+	 * Stores all registered event listeners (which declare event handlers) and prevents them from
+	 * being garbage collected.
 	 *
 	 * @since 0.0.1
 	 */
 	private final Set<Object> registeredListeners = ConcurrentHashMap.newKeySet();
 
 	/**
-	 * Thread-local dispatch state.
+	 * The current event dispatching state, local to each thread.
 	 *
 	 * @since 0.1.0
 	 */
