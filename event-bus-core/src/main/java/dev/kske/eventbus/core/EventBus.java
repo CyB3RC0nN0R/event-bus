@@ -5,6 +5,9 @@ import java.lang.System.Logger.Level;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
+
+import dev.kske.eventbus.core.handler.*;
 
 /**
  * Event listeners can be registered at an event bus to be notified when an event is dispatched.
@@ -55,6 +58,19 @@ public final class EventBus {
 	private static final EventBus singletonInstance = new EventBus();
 
 	private static final Logger logger = System.getLogger(EventBus.class.getName());
+
+	/**
+	 * Compares event handlers based on priority, but uses hash codes for equal priorities.
+	 *
+	 * @implNote As the priority comparator by itself is not consistent with equals (two handlers
+	 *           with the same priority are not necessarily equal, but would have a comparison
+	 *           result of 0), the hash code is used for the fallback comparison. This way,
+	 *           consistency with equals is restored.
+	 * @since 1.2.0
+	 */
+	private static final Comparator<EventHandler> byPriority =
+		Comparator.comparingInt(EventHandler::getPriority).reversed()
+			.thenComparingInt(EventHandler::hashCode);
 
 	/**
 	 * Returns the default event bus, which is a statically initialized singleton instance.
@@ -154,18 +170,19 @@ public final class EventBus {
 	 * Searches for the event handlers bound to an event class. This includes polymorphic handlers
 	 * that are bound to a supertype of the event class.
 	 *
-	 * @param eventClass the event class to use for the search
+	 * @param eventType the event type to use for the search
 	 * @return a navigable set containing the applicable handlers in descending order of priority
 	 * @since 1.2.0
 	 */
-	private NavigableSet<EventHandler> getHandlersFor(Class<?> eventClass) {
+	private NavigableSet<EventHandler> getHandlersFor(Class<?> eventType) {
 
 		// Get handlers defined for the event class
-		TreeSet<EventHandler> handlers = bindings.getOrDefault(eventClass, new TreeSet<>());
+		TreeSet<EventHandler> handlers =
+			bindings.getOrDefault(eventType, new TreeSet<>(byPriority));
 
 		// Get polymorphic handlers
 		for (var binding : bindings.entrySet())
-			if (binding.getKey().isAssignableFrom(eventClass))
+			if (binding.getKey().isAssignableFrom(eventType))
 				for (var handler : binding.getValue())
 					if (handler.isPolymorphic())
 						handlers.add(handler);
@@ -223,11 +240,8 @@ public final class EventBus {
 				continue;
 
 			// Initialize and bind the handler
-			var handler = new EventHandler(listener, method, annotation, polymorphic, priority);
-			bindings.putIfAbsent(handler.getEventType(), new TreeSet<>());
-			logger.log(Level.DEBUG, "Binding event handler {0}", handler);
-			bindings.get(handler.getEventType())
-				.add(handler);
+			bindHandler(
+				new ReflectiveEventHandler(listener, method, annotation, polymorphic, priority));
 			handlerBound = true;
 		}
 
@@ -236,6 +250,85 @@ public final class EventBus {
 				Level.WARNING,
 				"No event handlers bound for event listener {0}",
 				listener.getClass().getName());
+	}
+
+	/**
+	 * Registers a callback listener, which is a consumer that is invoked when an event occurs. The
+	 * listener is not polymorphic and has the {@link #DEFAULT_PRIORITY}.
+	 *
+	 * @param <E>       the event type the listener listens for
+	 * @param eventType the event type the listener listens for
+	 * @param callback  the callback that is invoked when an event occurs
+	 * @since 1.2.0
+	 * @see #registerListener(Class, Consumer, boolean, int)
+	 */
+	public <E> void registerListener(Class<E> eventType, Consumer<E> callback) {
+		registerListener(eventType, callback, false, DEFAULT_PRIORITY);
+	}
+
+	/**
+	 * Registers a callback listener, which is a consumer that is invoked when an event occurs. The
+	 * listener has the {@link #DEFAULT_PRIORITY}.
+	 *
+	 * @param <E>         the event type the listener listens for
+	 * @param eventType   the event type the listener listens for
+	 * @param callback    the callback that is invoked when an event occurs
+	 * @param polymorphic whether the listener is also invoked for subtypes of the event type
+	 * @since 1.2.0
+	 * @see #registerListener(Class, Consumer, boolean, int)
+	 */
+	public <E> void registerListener(Class<E> eventType, Consumer<E> callback,
+		boolean polymorphic) {
+		registerListener(eventType, callback, polymorphic, DEFAULT_PRIORITY);
+	}
+
+	/**
+	 * Registers a callback listener, which is a consumer that is invoked when an event occurs. The
+	 * listener is not polymorphic.
+	 *
+	 * @param <E>       the event type the listener listens for
+	 * @param eventType the event type the listener listens for
+	 * @param callback  the callback that is invoked when an event occurs
+	 * @param priority  the priority to assign to the listener
+	 * @since 1.2.0
+	 * @see #registerListener(Class, Consumer, boolean, int)
+	 */
+	public <E> void registerListener(Class<E> eventType, Consumer<E> callback, int priority) {
+		registerListener(eventType, callback, false, priority);
+	}
+
+	/**
+	 * Registers a callback listener, which is a consumer that is invoked when an event occurs.
+	 *
+	 * @param <E>         the event type the listener listens for
+	 * @param eventType   the event type the listener listens for
+	 * @param callback    the callback that is invoked when an event occurs
+	 * @param polymorphic whether the listener is also invoked for subtypes of the event type
+	 * @param priority    the priority to assign to the listener
+	 * @since 1.2.0
+	 */
+	public <E> void registerListener(Class<E> eventType, Consumer<E> callback, boolean polymorphic,
+		int priority) {
+		Objects.requireNonNull(callback);
+		if (registeredListeners.contains(callback))
+			throw new EventBusException(callback + " already registered!");
+		logger.log(Level.INFO, "Registering callback event listener {0}",
+			callback.getClass().getName());
+
+		registeredListeners.add(callback);
+		bindHandler(new CallbackEventHandler(eventType, callback, polymorphic, priority));
+	}
+
+	/**
+	 * Inserts a new handler into the {@link #bindings} map.
+	 *
+	 * @param handler the handler to bind
+	 * @since 1.2.0
+	 */
+	private void bindHandler(EventHandler handler) {
+		bindings.putIfAbsent(handler.getEventType(), new TreeSet<>(byPriority));
+		logger.log(Level.DEBUG, "Binding event handler {0}", handler);
+		bindings.get(handler.getEventType()).add(handler);
 	}
 
 	/**
