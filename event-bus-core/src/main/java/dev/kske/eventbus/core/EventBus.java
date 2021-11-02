@@ -109,7 +109,7 @@ public final class EventBus {
 		// Increment nesting count (becomes > 1 during nested dispatches)
 		++state.nestingCount;
 
-		Iterator<EventHandler> handlers = getHandlersFor(event.getClass());
+		Iterator<EventHandler> handlers = getHandlersFor(event.getClass()).iterator();
 		if (handlers.hasNext()) {
 			while (handlers.hasNext())
 				if (state.isCancelled) {
@@ -155,10 +155,10 @@ public final class EventBus {
 	 * that are bound to a supertype of the event class.
 	 *
 	 * @param eventClass the event class to use for the search
-	 * @return an iterator over the applicable handlers in descending order of priority
-	 * @since 0.0.1
+	 * @return a navigable set containing the applicable handlers in descending order of priority
+	 * @since 1.2.0
 	 */
-	private Iterator<EventHandler> getHandlersFor(Class<?> eventClass) {
+	private NavigableSet<EventHandler> getHandlersFor(Class<?> eventClass) {
 
 		// Get handlers defined for the event class
 		TreeSet<EventHandler> handlers = bindings.getOrDefault(eventClass, new TreeSet<>());
@@ -170,7 +170,7 @@ public final class EventBus {
 					if (handler.isPolymorphic())
 						handlers.add(handler);
 
-		return handlers.iterator();
+		return handlers;
 	}
 
 	/**
@@ -273,6 +273,39 @@ public final class EventBus {
 		logger.log(Level.INFO, "Clearing event listeners");
 		bindings.clear();
 		registeredListeners.clear();
+	}
+
+	/**
+	 * Generates a string describing the event handlers that would be executed for a specific event
+	 * type, in order and without actually executing them.
+	 *
+	 * @apiNote Using this method is only recommended for debugging purposes, as the output depends
+	 *          on implementation internals which may be subject to change.
+	 * @implNote Nested dispatches are not accounted for, as this would require actually executing
+	 *           the handlers.
+	 * @param eventType the event type to generate the execution order for
+	 * @return a human-readable event handler list suitable for debugging purposes
+	 * @since 1.2.0
+	 */
+	public String printExecutionOrder(Class<?> eventType) {
+		var	handlers	= getHandlersFor(eventType);
+		var	sj			= new StringJoiner("\n");
+
+		// Output header line
+		sj.add(String.format("Event handler execution order for %s (%d handler(s)):", eventType,
+			handlers.size()));
+		sj.add(
+			"==========================================================================================");
+
+		// Individual handlers
+		for (var handler : handlers)
+			sj.add(handler.toString());
+
+		// Bottom line
+		sj.add(
+			"==========================================================================================");
+
+		return sj.toString();
 	}
 
 	/**
