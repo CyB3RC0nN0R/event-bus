@@ -256,67 +256,68 @@ public final class EventBus {
 	 * Registers a callback listener, which is a consumer that is invoked when an event occurs. The
 	 * listener is not polymorphic and has the {@link #DEFAULT_PRIORITY}.
 	 *
-	 * @param <E>       the event type the listener listens for
-	 * @param eventType the event type the listener listens for
-	 * @param callback  the callback that is invoked when an event occurs
+	 * @param <E>           the event type the listener listens for
+	 * @param eventType     the event type the listener listens for
+	 * @param eventListener the callback that is invoked when an event occurs
 	 * @since 1.2.0
 	 * @see #registerListener(Class, Consumer, boolean, int)
 	 */
-	public <E> void registerListener(Class<E> eventType, Consumer<E> callback) {
-		registerListener(eventType, callback, false, DEFAULT_PRIORITY);
+	public <E> void registerListener(Class<E> eventType, Consumer<E> eventListener) {
+		registerListener(eventType, eventListener, false, DEFAULT_PRIORITY);
 	}
 
 	/**
 	 * Registers a callback listener, which is a consumer that is invoked when an event occurs. The
 	 * listener has the {@link #DEFAULT_PRIORITY}.
 	 *
-	 * @param <E>         the event type the listener listens for
-	 * @param eventType   the event type the listener listens for
-	 * @param callback    the callback that is invoked when an event occurs
-	 * @param polymorphic whether the listener is also invoked for subtypes of the event type
+	 * @param <E>           the event type the listener listens for
+	 * @param eventType     the event type the listener listens for
+	 * @param eventListener the callback that is invoked when an event occurs
+	 * @param polymorphic   whether the listener is also invoked for subtypes of the event type
 	 * @since 1.2.0
 	 * @see #registerListener(Class, Consumer, boolean, int)
 	 */
-	public <E> void registerListener(Class<E> eventType, Consumer<E> callback,
+	public <E> void registerListener(Class<E> eventType, Consumer<E> eventListener,
 		boolean polymorphic) {
-		registerListener(eventType, callback, polymorphic, DEFAULT_PRIORITY);
+		registerListener(eventType, eventListener, polymorphic, DEFAULT_PRIORITY);
 	}
 
 	/**
 	 * Registers a callback listener, which is a consumer that is invoked when an event occurs. The
 	 * listener is not polymorphic.
 	 *
-	 * @param <E>       the event type the listener listens for
-	 * @param eventType the event type the listener listens for
-	 * @param callback  the callback that is invoked when an event occurs
-	 * @param priority  the priority to assign to the listener
+	 * @param <E>           the event type the listener listens for
+	 * @param eventType     the event type the listener listens for
+	 * @param eventListener the callback that is invoked when an event occurs
+	 * @param priority      the priority to assign to the listener
 	 * @since 1.2.0
 	 * @see #registerListener(Class, Consumer, boolean, int)
 	 */
-	public <E> void registerListener(Class<E> eventType, Consumer<E> callback, int priority) {
-		registerListener(eventType, callback, false, priority);
+	public <E> void registerListener(Class<E> eventType, Consumer<E> eventListener, int priority) {
+		registerListener(eventType, eventListener, false, priority);
 	}
 
 	/**
 	 * Registers a callback listener, which is a consumer that is invoked when an event occurs.
 	 *
-	 * @param <E>         the event type the listener listens for
-	 * @param eventType   the event type the listener listens for
-	 * @param callback    the callback that is invoked when an event occurs
-	 * @param polymorphic whether the listener is also invoked for subtypes of the event type
-	 * @param priority    the priority to assign to the listener
+	 * @param <E>           the event type the listener listens for
+	 * @param eventType     the event type the listener listens for
+	 * @param eventListener the callback that is invoked when an event occurs
+	 * @param polymorphic   whether the listener is also invoked for subtypes of the event type
+	 * @param priority      the priority to assign to the listener
 	 * @since 1.2.0
 	 */
-	public <E> void registerListener(Class<E> eventType, Consumer<E> callback, boolean polymorphic,
+	public <E> void registerListener(Class<E> eventType, Consumer<E> eventListener,
+		boolean polymorphic,
 		int priority) {
-		Objects.requireNonNull(callback);
-		if (registeredListeners.contains(callback))
-			throw new EventBusException(callback + " already registered!");
+		Objects.requireNonNull(eventListener);
+		if (registeredListeners.contains(eventListener))
+			throw new EventBusException(eventListener + " already registered!");
 		logger.log(Level.INFO, "Registering callback event listener {0}",
-			callback.getClass().getName());
+			eventListener.getClass().getName());
 
-		registeredListeners.add(callback);
-		bindHandler(new CallbackEventHandler(eventType, callback, polymorphic, priority));
+		registeredListeners.add(eventListener);
+		bindHandler(new CallbackEventHandler(eventType, eventListener, polymorphic, priority));
 	}
 
 	/**

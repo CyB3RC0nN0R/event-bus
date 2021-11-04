@@ -45,7 +45,7 @@ public interface EventHandler {
 	int getPriority();
 
 	/**
-	 * @return whether this handler is polymorphic
+	 * @return whether this handler also accepts subtypes of the event type
 	 * @since 1.2.0
 	 * @see Polymorphic
 	 */
