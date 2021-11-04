@@ -9,7 +9,7 @@ import java.util.function.Consumer;
  * @author Kai S. K. Engelbart
  * @since 1.2.0
  */
-public class CallbackEventHandler implements EventHandler {
+public final class CallbackEventHandler implements EventHandler {
 
 	private final Class<?>			eventType;
 	private final Consumer<Object>	callback;
