@@ -22,7 +22,7 @@ import java.lang.annotation.*;
 public @interface Event {
 
 	/**
-	 * Defines the event type the handler listens to. If this value is set, the handler is not
+	 * Defines the event type the handler listens for. If this value is set, the handler is not
 	 * allowed to declare parameters.
 	 * <p>
 	 * This is useful when the event handler does not utilize the event instance.
