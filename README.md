@@ -54,6 +54,33 @@ private static void onSimpleEvent(SimpleEvent event) { ... }
 
 is technically possible, however you would still have to create an instance of the event listener to register it at an event bus.
 
+## Installation
+
+Event Bus is available in Maven Central.
+To include it inside your project, just add the following dependency to your `pom.xml`:
+
+```xml
+<dependencies>
+    <dependency>
+        <groupId>dev.kske</groupId>
+        <artifactId>event-bus-core</artifactId>
+        <version>1.1.0</version>
+    </dependency>
+</dependencies>
+```
+
+Then, require the Event Bus Core module in your `module-info.java`:
+
+```java
+requires dev.kske.eventbus.core;
+```
+
+If you intend to use event handlers that are inaccessible to Event Bus by means of Java language access control, make sure to allow reflective access from your module:
+
+```java
+opens my.module to dev.kske.eventbus.core;
+```
+
 ## Polymorphic Event Handlers
 
 On certain occasions it's practical for an event handler to accept both events of the specified type, as well as subclasses of that event.
@@ -181,33 +208,6 @@ System.out.println(EventBus.getInstance().printExecutionOrder(SimpleEvent.class)
 ```
 
 Then, the execution order can be inspected in the console.
-
-## Installation
-
-Event Bus is available in Maven Central.
-To include it inside your project, just add the following dependency to your `pom.xml`:
-
-```xml
-<dependencies>
-    <dependency>
-        <groupId>dev.kske</groupId>
-        <artifactId>event-bus-core</artifactId>
-        <version>1.1.0</version>
-    </dependency>
-</dependencies>
-```
-
-Then, require the Event Bus Core module in your `module-info.java`:
-
-```java
-requires dev.kske.eventbus.core;
-```
-
-If you intend to use event handlers that are inaccessible to Event Bus by means of Java language access control, make sure to allow reflective access from your module:
-
-```java
-opens my.module to dev.kske.eventbus.core;
-```
 
 ## Compile-Time Error Checking with Event Bus Proc
 
