@@ -159,6 +159,17 @@ The same applies when an exception event handler throws an exception.
 
 To avoid this, system events never cause system events and instead just issue a warning to the logger.
 
+## Debugging
+
+In more complex setups, taking a look at the event handler execution order can be helpful for debugging.
+Event Bus offers a method for this purpose which can be used as follows:
+
+```java
+System.out.println(EventBus.getInstance().printExecutionOrder(SimpleEvent.class));
+```
+
+Then, the execution order can be inspected in the console.
+
 ## Installation
 
 Event Bus is available in Maven Central.
