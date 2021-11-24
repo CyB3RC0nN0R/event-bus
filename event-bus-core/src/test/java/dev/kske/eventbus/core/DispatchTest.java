@@ -12,7 +12,7 @@ import org.junit.jupiter.api.*;
  */
 @Polymorphic
 @Priority(150)
-class DispatchTest {
+public class DispatchTest {
 
 	EventBus	bus;
 	static int	hits;
@@ -23,7 +23,7 @@ class DispatchTest {
 	 * @since 0.0.1
 	 */
 	@BeforeEach
-	void registerListener() {
+	public void registerListener() {
 		bus = new EventBus();
 		bus.registerListener(this);
 		bus.registerListener(SimpleEvent.class, e -> {
@@ -39,7 +39,7 @@ class DispatchTest {
 	 * @since 0.0.1
 	 */
 	@Test
-	void testDispatch() {
+	public void testDispatch() {
 		bus.dispatch(new SimpleEventSub());
 		bus.dispatch(new SimpleEvent());
 	}
@@ -50,7 +50,7 @@ class DispatchTest {
 	 * @since 1.2.0
 	 */
 	@Test
-	void testPrintExecutionOrder() {
+	public void testPrintExecutionOrder() {
 		String executionOrder = bus.printExecutionOrder(SimpleEvent.class);
 		System.out.println(executionOrder);
 		assertEquals(
