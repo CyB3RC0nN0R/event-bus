@@ -94,6 +94,18 @@ private void onSimpleEvent() {
 
 Make sure that you **do not** both declare a parameter and specify the event type in the annotation, as this would be ambiguous.
 
+## Callback listeners
+
+While defining event handlers as annotated methods is rather simple and readable, sometimes a more flexible approach is required.
+For this reason, there are callback event handlers that allow the registration of an "inline" event listener consisting of just one handler in the form of a consumer:
+
+```java
+EventBus.getInstance().registerListener(SimpleEvent.class, e -> System.out.println("Received " + e));
+```
+
+The event type has to be defined explicitly, with the priority and polymorphism parameters being optional.
+If you intend to remove the listener later, remember to keep a reference to it, as you would have to clear the entire event bus if you didn't.
+
 ## Listener-Level Properties
 
 When defining a dedicated event listener that, for example, performs pre- or post-processing, all event handlers will probably have the same non-standard priority.
