@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
  * @author Kai S. K. Engelbart
  * @since 1.1.0
  */
-class DeadTest {
+public class DeadTest {
 
 	EventBus	bus		= new EventBus();
 	String		event	= "This event has no handler";
@@ -18,11 +18,11 @@ class DeadTest {
 
 	/**
 	 * Tests dead event delivery.
-	 * 
+	 *
 	 * @since 1.1.0
 	 */
 	@Test
-	void testDeadEvent() {
+	public void testDeadEvent() {
 		bus.registerListener(this);
 		bus.dispatch(event);
 		assertTrue(deadEventHandled);
@@ -32,11 +32,11 @@ class DeadTest {
 	/**
 	 * Tests how the event bus reacts to an unhandled dead event. This should not lead to an
 	 * exception or an endless recursion and should be logged instead.
-	 * 
+	 *
 	 * @since 1.1.0
 	 */
 	@Test
-	void testUnhandledDeadEvent() {
+	public void testUnhandledDeadEvent() {
 		bus.dispatch(event);
 	}
 
