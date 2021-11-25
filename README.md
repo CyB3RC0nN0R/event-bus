@@ -75,10 +75,10 @@ Then, require the Event Bus Core module in your `module-info.java`:
 requires dev.kske.eventbus.core;
 ```
 
-If you intend to use event handlers that are inaccessible to Event Bus by means of Java language access control, make sure to allow reflective access from your module:
+If you intend to use event handlers that are inaccessible to Event Bus by means of Java language access control, make sure to allow reflective access to your package for Event Bus:
 
 ```java
-opens my.module to dev.kske.eventbus.core;
+opens my.package to dev.kske.eventbus.core;
 ```
 
 ## Polymorphic Event Handlers
