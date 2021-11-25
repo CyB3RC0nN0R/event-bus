@@ -11,7 +11,7 @@ import org.junit.jupiter.api.*;
  * @author Leon Hofmeister
  * @since 0.1.0
  */
-class CancelTest {
+public class CancelTest {
 
 	EventBus	bus;
 	int			hits;
@@ -22,7 +22,7 @@ class CancelTest {
 	 * @since 0.1.0
 	 */
 	@BeforeEach
-	void registerListener() {
+	public void registerListener() {
 		bus = new EventBus();
 		bus.registerListener(this);
 	}
@@ -34,7 +34,7 @@ class CancelTest {
 	 * @since 0.1.0
 	 */
 	@Test
-	void testCancellation() {
+	public void testCancellation() {
 		bus.dispatch(new SimpleEvent());
 		assertEquals(1, hits);
 	}

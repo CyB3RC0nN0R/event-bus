@@ -10,7 +10,7 @@ import org.junit.jupiter.api.*;
  * @author Kai S. K. Engelbart
  * @since 1.2.0
  */
-class NestedTest {
+public class NestedTest {
 
 	EventBus	bus;
 	boolean		nestedHit;
@@ -21,7 +21,7 @@ class NestedTest {
 	 * @since 1.2.0
 	 */
 	@BeforeEach
-	void registerListener() {
+	public void registerListener() {
 		bus = new EventBus();
 		bus.registerListener(this);
 	}
@@ -34,7 +34,7 @@ class NestedTest {
 	 * @since 1.2.0
 	 */
 	@Test
-	void testNestedDispatch() {
+	public void testNestedDispatch() {
 		bus.dispatch(new SimpleEvent());
 		assertTrue(nestedHit);
 	}
