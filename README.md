@@ -204,7 +204,7 @@ In more complex setups, taking a look at the event handler execution order can b
 Event Bus offers a method for this purpose which can be used as follows:
 
 ```java
-System.out.println(EventBus.getInstance().printExecutionOrder(SimpleEvent.class));
+System.out.println(EventBus.getInstance().debugExecutionOrder(SimpleEvent.class));
 ```
 
 Then, the execution order can be inspected in the console.
