@@ -54,6 +54,33 @@ private static void onSimpleEvent(SimpleEvent event) { ... }
 
 is technically possible, however you would still have to create an instance of the event listener to register it at an event bus.
 
+## Installation
+
+Event Bus is available in Maven Central.
+To include it inside your project, just add the following dependency to your `pom.xml`:
+
+```xml
+<dependencies>
+    <dependency>
+        <groupId>dev.kske</groupId>
+        <artifactId>event-bus-core</artifactId>
+        <version>1.1.0</version>
+    </dependency>
+</dependencies>
+```
+
+Then, require the Event Bus Core module in your `module-info.java`:
+
+```java
+requires dev.kske.eventbus.core;
+```
+
+If you intend to use event handlers that are inaccessible to Event Bus by means of Java language access control, make sure to allow reflective access to your package for Event Bus:
+
+```java
+opens my.package to dev.kske.eventbus.core;
+```
+
 ## Polymorphic Event Handlers
 
 On certain occasions it's practical for an event handler to accept both events of the specified type, as well as subclasses of that event.
@@ -93,6 +120,18 @@ private void onSimpleEvent() {
 ```
 
 Make sure that you **do not** both declare a parameter and specify the event type in the annotation, as this would be ambiguous.
+
+## Callback listeners
+
+While defining event handlers as annotated methods is rather simple and readable, sometimes a more flexible approach is required.
+For this reason, there are callback event handlers that allow the registration of an "inline" event listener consisting of just one handler in the form of a consumer:
+
+```java
+EventBus.getInstance().registerListener(SimpleEvent.class, e -> System.out.println("Received " + e));
+```
+
+The event type has to be defined explicitly, with the priority and polymorphism parameters being optional.
+If you intend to remove the listener later, remember to keep a reference to it, as you would have to clear the entire event bus if you didn't.
 
 ## Listener-Level Properties
 
@@ -159,32 +198,16 @@ The same applies when an exception event handler throws an exception.
 
 To avoid this, system events never cause system events and instead just issue a warning to the logger.
 
-## Installation
+## Debugging
 
-Event Bus is available in Maven Central.
-To include it inside your project, just add the following dependency to your `pom.xml`:
-
-```xml
-<dependencies>
-    <dependency>
-        <groupId>dev.kske</groupId>
-        <artifactId>event-bus-core</artifactId>
-        <version>1.1.0</version>
-    </dependency>
-</dependencies>
-```
-
-Then, require the Event Bus Core module in your `module-info.java`:
+In more complex setups, taking a look at the event handler execution order can be helpful for debugging.
+Event Bus offers a method for this purpose which can be used as follows:
 
 ```java
-requires dev.kske.eventbus.core;
+System.out.println(EventBus.getInstance().debugExecutionOrder(SimpleEvent.class));
 ```
 
-If you intend to use event handlers that are inaccessible to Event Bus by means of Java language access control, make sure to allow reflective access from your module:
-
-```java
-opens my.module to dev.kske.eventbus.core;
-```
+Then, the execution order can be inspected in the console.
 
 ## Compile-Time Error Checking with Event Bus Proc
 

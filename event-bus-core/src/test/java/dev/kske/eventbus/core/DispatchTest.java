@@ -45,13 +45,13 @@ public class DispatchTest {
 	}
 
 	/**
-	 * Tests {@link EventBus#printExecutionOrder(Class)} based on the currently registered handlers.
+	 * Tests {@link EventBus#debugExecutionOrder(Class)} based on the currently registered handlers.
 	 *
 	 * @since 1.2.0
 	 */
 	@Test
-	public void testPrintExecutionOrder() {
-		String executionOrder = bus.printExecutionOrder(SimpleEvent.class);
+	public void testDebugExecutionOrder() {
+		String executionOrder = bus.debugExecutionOrder(SimpleEvent.class);
 		System.out.println(executionOrder);
 		assertEquals(
 			"Event handler execution order for class dev.kske.eventbus.core.SimpleEvent (3 handler(s)):\n"

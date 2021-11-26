@@ -381,7 +381,7 @@ public final class EventBus {
 	 * @return a human-readable event handler list suitable for debugging purposes
 	 * @since 1.2.0
 	 */
-	public String printExecutionOrder(Class<?> eventType) {
+	public String debugExecutionOrder(Class<?> eventType) {
 		var	handlers	= getHandlersFor(eventType);
 		var	sj			= new StringJoiner("\n");
 
