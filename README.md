@@ -64,7 +64,7 @@ To include it inside your project, just add the following dependency to your `po
     <dependency>
         <groupId>dev.kske</groupId>
         <artifactId>event-bus-core</artifactId>
-        <version>1.1.0</version>
+        <version>1.2.0</version>
     </dependency>
 </dependencies>
 ```
@@ -228,7 +228,7 @@ When using Maven, it can be registered using the Maven Compiler Plugin:
             <annotationProcessorPath>
                 <groupId>dev.kske</groupId>
                 <artifactId>event-bus-proc</artifactId>
-                <version>1.1.0</version>
+                <version>1.2.0</version>
             </annotationProcessorPath>
         </annotationProcessorPaths>
     </configuration>
