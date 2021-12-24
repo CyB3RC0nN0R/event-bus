@@ -13,8 +13,8 @@
 	<url>https://git.kske.dev/kske/event-bus</url>
 
 	<modules>
-		<module>event-bus-core</module>
-		<module>event-bus-proc</module>
+		<module>core</module>
+		<module>proc</module>
 	</modules>
 
 	<licenses>
