@@ -1,6 +1,5 @@
 package dev.kske.eventbus.core;
 
-
 /**
  * This unchecked exception acts as a wrapper for an arbitrary exception to prevent an
  * {@link ExceptionEvent} from being dispatched. Instead, the wrapped exception is rethrown by
