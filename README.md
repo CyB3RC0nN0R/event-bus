@@ -183,13 +183,36 @@ private void onDeadEvent(DeadEvent deadEvent) { ... }
 ### Detecting Exceptions Thrown by Event Handlers
 
 When an event handler throws an exception, an exception event is dispatched that wraps the original event.
-A exception handler is declared as follows:
+An exception handler is declared as follows:
 
 ```java
 private void onExceptionEvent(ExceptionEvent ExceptionEvent) { ... }
 ```
-
 Both system events reference the event bus that caused them and a warning is logged if they are unhandled.
+
+#### Yeeting Exceptions Out of an Event Handler
+
+In some cases, a warning about an `Exception` that was thrown in an event handler is not enough, stays unnoticed, or an exception should be catched explicitly.
+Event Bus explicitly dispatches no `ExceptionEvent` when an `ExceptionWrapper` exception is thrown and instead simply rethrows it.
+`ExceptionWrapper` is an unchecked exception that (as the name says) simply wraps an exception that caused it.
+This means the following is possible and results in a normal program exit:
+```java
+@Event(String.class)
+void onString() {
+	throw new ExceptionWrapper(new RuntimeException("I failed!"));
+}
+
+void helloStackTrace() {
+	EventBus.getInstance().registerListener(this);
+	try {
+		EventBus.getInstance().dispatch("A string!");
+		System.exit(-1);
+	} catch(ExceptionWrapper e) {
+		e.getCause().printStackTrace();
+		System.exit(0);
+	}
+}
+```
 
 ### What About Endless Recursion Caused By Dead Events and Exception Events?
 
