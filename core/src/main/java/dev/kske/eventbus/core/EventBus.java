@@ -112,10 +112,11 @@ public final class EventBus {
 	 *
 	 * @param event the event to dispatch
 	 * @throws EventBusException    if an event handler isn't accessible or has an invalid signature
+	 * @throws ExceptionWrapper     if it is thrown by an event handler
 	 * @throws NullPointerException if the specified event is {@code null}
 	 * @since 0.0.1
 	 */
-	public void dispatch(Object event) throws EventBusException {
+	public void dispatch(Object event) {
 		Objects.requireNonNull(event);
 		logger.log(Level.INFO, "Dispatching event {0}", event);
 
@@ -140,6 +141,10 @@ public final class EventBus {
 
 							// Transparently pass error to the caller
 							throw (Error) e.getCause();
+						else if (e.getCause() instanceof ExceptionWrapper)
+
+							// Transparently pass exception wrapper to the caller
+							throw (ExceptionWrapper) e.getCause();
 						else if (event instanceof DeadEvent || event instanceof ExceptionEvent)
 
 							// Warn about system event not being handled
@@ -214,7 +219,7 @@ public final class EventBus {
 	 * @since 0.0.1
 	 * @see Event
 	 */
-	public void registerListener(Object listener) throws EventBusException {
+	public void registerListener(Object listener) {
 		Objects.requireNonNull(listener);
 		if (registeredListeners.contains(listener))
 			throw new EventBusException(listener + " already registered!");
