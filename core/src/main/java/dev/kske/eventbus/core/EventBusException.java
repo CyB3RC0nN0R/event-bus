@@ -14,13 +14,14 @@ package dev.kske.eventbus.core;
  */
 public final class EventBusException extends RuntimeException {
 
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 7254445250300604449L;
 
 	/**
 	 * Creates a new event bus exception.
 	 *
 	 * @param message the message to display
 	 * @param cause   the cause of this exception
+	 * @since 0.0.1
 	 */
 	public EventBusException(String message, Throwable cause) {
 		super(message, cause);
@@ -30,6 +31,7 @@ public final class EventBusException extends RuntimeException {
 	 * Creates a new event bus exception.
 	 *
 	 * @param message the message to display
+	 * @since 0.0.1
 	 */
 	public EventBusException(String message) {
 		super(message);
