@@ -2,10 +2,12 @@ package dev.kske.eventbus.core;
 
 import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
-import java.lang.reflect.InvocationTargetException;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import dev.kske.eventbus.core.handler.*;
 
@@ -14,9 +16,8 @@ import dev.kske.eventbus.core.handler.*;
  * <p>
  * A singleton instance of this class can be lazily created and acquired using the
  * {@link EventBus#getInstance()} method.
- * <p>
- * This is a thread-safe implementation.
  *
+ * @implNote This is a thread-safe implementation.
  * @author Kai S. K. Engelbart
  * @since 0.0.1
  * @see Event
@@ -237,7 +238,7 @@ public final class EventBus {
 			priority = listener.getClass().getAnnotation(Priority.class).value();
 
 		registeredListeners.add(listener);
-		for (var method : listener.getClass().getDeclaredMethods()) {
+		for (var method : getHandlerMethods(listener.getClass())) {
 			Event annotation = method.getAnnotation(Event.class);
 
 			// Skip methods without annotations
@@ -255,6 +256,45 @@ public final class EventBus {
 				Level.WARNING,
 				"No event handlers bound for event listener {0}",
 				listener.getClass().getName());
+	}
+
+	/**
+	 * Searches for event handling methods declared inside the inheritance hierarchy of an event
+	 * listener.
+	 *
+	 * @param listenerClass the class to inspect
+	 * @return all event handling methods defined for the given listener
+	 * @since 1.3.0
+	 */
+	private Set<Method> getHandlerMethods(Class<?> listenerClass) {
+
+		// Get methods declared by the listener
+		Set<Method> methods = getMethodsAnnotatedWith(listenerClass, Event.class);
+
+		// Recursively add superclass handlers
+		if (listenerClass.getSuperclass() != null)
+			methods.addAll(getHandlerMethods(listenerClass.getSuperclass()));
+
+		// Recursively add interface handlers
+		for (Class<?> iClass : listenerClass.getInterfaces())
+			methods.addAll(getHandlerMethods(iClass));
+
+		return methods;
+	}
+
+	/**
+	 * Searches for declared methods with a specific annotation inside a class.
+	 *
+	 * @param enclosingClass  the class to inspect
+	 * @param annotationClass the annotation to look for
+	 * @return all methods matching the search criteria
+	 * @since 1.3.0
+	 */
+	private Set<Method> getMethodsAnnotatedWith(Class<?> enclosingClass,
+		Class<? extends Annotation> annotationClass) {
+		return Arrays.stream(enclosingClass.getDeclaredMethods())
+			.filter(m -> m.isAnnotationPresent(annotationClass))
+			.collect(Collectors.toSet());
 	}
 
 	/**

@@ -221,6 +221,12 @@ The same applies when an exception event handler throws an exception.
 
 To avoid this, system events never cause system events and instead just issue a warning to the logger.
 
+## Inheritance
+
+When a superclass or an interface of an event listener defines event handlers, they will be detected and registered by Event Bus, even if they are `private`.
+If an event handler is overridden by the listener, the `@Event` annotation of the overridden method is automatically considered present on the overriding method.
+If the overridden method contains an implementation, it is ignored as expected.
+
 ## Debugging
 
 In more complex setups, taking a look at the event handler execution order can be helpful for debugging.
