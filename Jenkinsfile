@@ -28,7 +28,7 @@ pipeline {
 			}
 			steps {
 				withSonarQubeEnv('KSKE SonarQube') {
-					sh "$SONAR_MAVEN_GOAL"
+					sh 'mvn sonar:sonar'
 				}
 			}
 		}

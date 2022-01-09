@@ -24,9 +24,6 @@
 
 	<build>
 
-		<!-- Disable test folder -->
-		<testSourceDirectory />
-
 		<plugins>
 
 			<!-- Prevent annotation processing error during compilation -->
