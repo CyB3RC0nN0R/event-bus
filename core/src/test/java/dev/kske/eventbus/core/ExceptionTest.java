@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
  * @author Kai S. K. Engelbart
  * @since 1.1.0
  */
-public class ExceptionTest {
+class ExceptionTest {
 
 	EventBus			bus			= new EventBus();
 	String				event		= "This event will cause an exception";
@@ -23,7 +23,7 @@ public class ExceptionTest {
 	 * @since 1.1.0
 	 */
 	@Test
-	public void testExceptionEvent() {
+	void testExceptionEvent() {
 		bus.registerListener(this);
 		bus.registerListener(new ExceptionListener());
 		bus.dispatch(event);
@@ -38,7 +38,7 @@ public class ExceptionTest {
 	 * @since 1.1.0
 	 */
 	@Test
-	public void testUnhandledExceptionEvent() {
+	void testUnhandledExceptionEvent() {
 		bus.registerListener(this);
 		bus.dispatch(event);
 		bus.removeListener(this);
