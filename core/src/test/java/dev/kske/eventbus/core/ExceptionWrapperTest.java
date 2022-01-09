@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
  * @author Kai S. K. Engelbart
  * @since 1.2.1
  */
-public class ExceptionWrapperTest {
+class ExceptionWrapperTest {
 
 	EventBus	bus		= new EventBus();
 	String		event	= "This event will cause an exception";
@@ -21,7 +21,7 @@ public class ExceptionWrapperTest {
 	 * @since 1.2.1
 	 */
 	@Test
-	public void testExceptionWrapper() {
+	void testExceptionWrapper() {
 		bus.registerListener(this);
 		assertThrows(ExceptionWrapper.class, () -> bus.dispatch(event));
 	}
