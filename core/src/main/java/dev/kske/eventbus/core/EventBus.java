@@ -7,7 +7,6 @@ import java.lang.reflect.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 import dev.kske.eventbus.core.handler.*;
 
@@ -272,8 +271,9 @@ public final class EventBus {
 		Set<Method> methods = getMethodsAnnotatedWith(listenerClass, Event.class);
 
 		// Recursively add superclass handlers
-		if (listenerClass.getSuperclass() != null)
-			methods.addAll(getHandlerMethods(listenerClass.getSuperclass()));
+		Class<?> superClass = listenerClass.getSuperclass();
+		if (superClass != null && superClass != Object.class)
+			methods.addAll(getHandlerMethods(superClass));
 
 		// Recursively add interface handlers
 		for (Class<?> iClass : listenerClass.getInterfaces())
@@ -292,9 +292,12 @@ public final class EventBus {
 	 */
 	private Set<Method> getMethodsAnnotatedWith(Class<?> enclosingClass,
 		Class<? extends Annotation> annotationClass) {
-		return Arrays.stream(enclosingClass.getDeclaredMethods())
-			.filter(m -> m.isAnnotationPresent(annotationClass))
-			.collect(Collectors.toSet());
+		var methods = new HashSet<Method>();
+		for (var method : enclosingClass.getDeclaredMethods())
+			if (method.isAnnotationPresent(annotationClass))
+				methods.add(method);
+
+		return methods;
 	}
 
 	/**

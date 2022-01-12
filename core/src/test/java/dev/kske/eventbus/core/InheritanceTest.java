@@ -5,7 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import org.junit.jupiter.api.Test;
 
 /**
- * Tests whether event handlers correctly work in the context of an inheritance hierarchy.
+ * Tests whether event handlers correctly work in the context of an inheritance hierarchy. The
+ * effect of handler priorities is also accounted for.
  *
  * @author Kai S. K. Engelbart
  * @since 1.3.0
@@ -20,12 +21,12 @@ class InheritanceTest extends SimpleEventListenerBase implements SimpleEventList
 		var event = new SimpleEvent();
 
 		bus.dispatch(event);
-		assertSame(4, event.getCounter());
+		assertSame(3, event.getCounter());
 	}
 
 	@Override
 	void onSimpleEventAbstractHandler(SimpleEvent event) {
-		event.increment();
+		assertSame(1, event.getCounter());
 	}
 
 	@Override
@@ -35,6 +36,7 @@ class InheritanceTest extends SimpleEventListenerBase implements SimpleEventList
 
 	@Event
 	private void onSimpleEventPrivate(SimpleEvent event) {
+		assertSame(0, event.getCounter());
 		event.increment();
 	}
 }

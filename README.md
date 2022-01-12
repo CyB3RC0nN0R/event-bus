@@ -225,7 +225,10 @@ To avoid this, system events never cause system events and instead just issue a 
 
 When a superclass or an interface of an event listener defines event handlers, they will be detected and registered by Event Bus, even if they are `private`.
 If an event handler is overridden by the listener, the `@Event` annotation of the overridden method is automatically considered present on the overriding method.
-If the overridden method contains an implementation, it is ignored as expected.
+If the overridden method already contains an implementation in the superclass, the superclass implementation is ignored as expected.
+
+The `@Priority` and `@Polymorphic` annotations are inherited both on a class and on a method level.
+If the priority or polymorphism has to be redefined on an inherited handler, the `@Event` annotation has to be added explicitly.
 
 ## Debugging
 

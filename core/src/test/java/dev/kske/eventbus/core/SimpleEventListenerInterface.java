@@ -8,6 +8,7 @@ package dev.kske.eventbus.core;
  */
 interface SimpleEventListenerInterface {
 
+	@Priority(120)
 	@Event
 	void onSimpleEventInterfaceHandler(SimpleEvent event);
 }
