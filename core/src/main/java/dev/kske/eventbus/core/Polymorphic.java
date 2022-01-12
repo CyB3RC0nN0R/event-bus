@@ -18,6 +18,7 @@ import java.lang.annotation.*;
  * @see Event
  */
 @Documented
+@Inherited
 @Retention(RUNTIME)
 @Target({ METHOD, TYPE })
 public @interface Polymorphic {
