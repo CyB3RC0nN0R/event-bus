@@ -3,7 +3,6 @@ package dev.kske.eventbus.core.handler;
 import java.lang.reflect.*;
 
 import dev.kske.eventbus.core.*;
-import dev.kske.eventbus.core.Event.USE_PARAMETER;
 
 /**
  * An event handler wrapping a method annotated with {@link Event} and executing it using
@@ -37,7 +36,7 @@ public final class ReflectiveEventHandler implements EventHandler {
 		boolean defPolymorphism, int defPriority) throws EventBusException {
 		this.listener	= listener;
 		this.method		= method;
-		useParameter	= annotation.value() == USE_PARAMETER.class;
+		useParameter	= annotation.value() == void.class;
 
 		// Check handler signature
 		if (method.getParameterCount() == 0 && useParameter)

@@ -47,13 +47,12 @@ public class EventProcessor extends AbstractProcessor {
 
 				// Task failed successfully
 				eventType		= e.getTypeMirror();
-				useParameter	= processingEnv.getTypeUtils().isSameType(eventType,
-					getTypeMirror(Event.USE_PARAMETER.class));
+				useParameter	= eventType.getKind() == TypeKind.VOID;
 			}
 
 			// Check handler signature
 			boolean pass = false;
-			if (useParameter && eventHandler.getParameters().size() == 0)
+			if (useParameter && eventHandler.getParameters().isEmpty())
 				error(eventHandler, "The method or the annotation must define the event type");
 			else if (!useParameter && eventHandler.getParameters().size() == 1)
 				error(eventHandler,
@@ -100,14 +99,15 @@ public class EventProcessor extends AbstractProcessor {
 			boolean		hasListenerPriority	= listenerPriority != null;
 
 			// Effective polymorphism
-			boolean polymorphic =
+			boolean	polymorphic				=
 				hasListenerPolymorphic ? listenerPolymorphic.value() : defPolymorphic;
 			boolean	hasHandlerPolymorphic	= eventHandler.getAnnotation(Polymorphic.class) != null;
 			if (hasHandlerPolymorphic)
 				polymorphic = eventHandler.getAnnotation(Polymorphic.class).value();
 
 			// Effective priority
-			int priority = hasListenerPriority ? listenerPriority.value() : defPriority;
+			int		priority			=
+				hasListenerPriority ? listenerPriority.value() : defPriority;
 			boolean	hasHandlerPriority	= eventHandler.getAnnotation(Priority.class) != null;
 			if (hasHandlerPriority)
 				priority = eventHandler.getAnnotation(Priority.class).value();
@@ -135,14 +135,6 @@ public class EventProcessor extends AbstractProcessor {
 				warning(eventHandler,
 					"@Polymorphic should be removed as parameter cannot be subclassed");
 		}
-	}
-
-	private TypeMirror getTypeMirror(Class<?> clazz) {
-		return getTypeElement(clazz).asType();
-	}
-
-	private TypeElement getTypeElement(Class<?> clazz) {
-		return processingEnv.getElementUtils().getTypeElement(clazz.getCanonicalName());
 	}
 
 	private void warning(Element e, String msg, Object... args) {

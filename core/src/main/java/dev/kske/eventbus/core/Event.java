@@ -30,13 +30,5 @@ public @interface Event {
 	 * @return the event type accepted by the handler
 	 * @since 1.0.0
 	 */
-	Class<?> value() default USE_PARAMETER.class;
-
-	/**
-	 * Signifies that the event type the handler listens to is determined by the type of its only
-	 * parameter.
-	 *
-	 * @since 0.0.3
-	 */
-	static final class USE_PARAMETER {}
+	Class<?> value() default void.class;
 }
