@@ -57,8 +57,9 @@ public final class ReflectiveEventHandler implements EventHandler {
 			? method.getAnnotation(Priority.class).value()
 			: defPriority;
 
-		// Allow access if the method is non-public
-		method.setAccessible(true);
+		// Try to allow access if the method is not accessible
+		if (!method.canAccess(Modifier.isStatic(method.getModifiers()) ? null : listener))
+			method.setAccessible(true);
 	}
 
 	@Override
