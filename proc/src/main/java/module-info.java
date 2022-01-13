@@ -5,7 +5,7 @@
  * @author Kai S. K. Engelbart
  * @since 1.0.0
  */
-module dev.kske.eventbus.ap {
+module dev.kske.eventbus.proc {
 
 	requires java.compiler;
 	requires dev.kske.eventbus.core;

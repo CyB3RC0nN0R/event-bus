@@ -35,6 +35,7 @@ class InheritanceTest extends SimpleEventListenerBase implements SimpleEventList
 	}
 
 	@Event
+	@Priority(250)
 	private void onSimpleEventPrivate(SimpleEvent event) {
 		assertSame(0, event.getCounter());
 		event.increment();

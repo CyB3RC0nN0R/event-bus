@@ -16,8 +16,8 @@ abstract class SimpleEventListenerBase {
 		fail("This handler should not be invoked");
 	}
 
-	@Priority(150)
 	@Event
+	@Priority(150)
 	private void onSimpleEventPrivate(SimpleEvent event) {
 		assertSame(1, event.getCounter());
 		event.increment();
