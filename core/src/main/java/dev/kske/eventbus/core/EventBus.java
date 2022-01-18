@@ -457,6 +457,7 @@ public final class EventBus {
 	public void clearListeners() {
 		logger.log(Level.INFO, "Clearing event listeners");
 		bindings.clear();
+		bindingCache.clear();
 		registeredListeners.clear();
 	}
 
