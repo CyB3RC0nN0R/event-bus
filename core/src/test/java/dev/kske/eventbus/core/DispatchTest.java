@@ -50,8 +50,6 @@ class DispatchTest {
 	 */
 	@Test
 	void testDebugExecutionOrder() {
-		String executionOrder = bus.debugExecutionOrder(SimpleEvent.class);
-		System.out.println(executionOrder);
 		assertEquals(
 			"Event handler execution order for class dev.kske.eventbus.core.SimpleEvent (3 handler(s)):\n"
 				+ "==========================================================================================\n"
@@ -59,7 +57,7 @@ class DispatchTest {
 				+ "ReflectiveEventHandler[eventType=class dev.kske.eventbus.core.SimpleEvent, polymorphic=false, priority=150, method=static void dev.kske.eventbus.core.DispatchTest.onSimpleEventSecond(dev.kske.eventbus.core.SimpleEvent), useParameter=true]\n"
 				+ "CallbackEventHandler[eventType=class dev.kske.eventbus.core.SimpleEvent, polymorphic=false, priority=100]\n"
 				+ "==========================================================================================",
-			executionOrder);
+			bus.debugExecutionOrder(SimpleEvent.class));
 	}
 
 	/**
@@ -70,9 +68,8 @@ class DispatchTest {
 	 */
 	@Test
 	void testBindingCache() {
-		String executionOrder = bus.debugExecutionOrder(SimpleEventSub.class);
-		System.out.println(executionOrder);
-		assertEquals(executionOrder, bus.debugExecutionOrder(SimpleEventSub.class));
+		assertEquals(bus.debugExecutionOrder(SimpleEventSub.class),
+			bus.debugExecutionOrder(SimpleEventSub.class));
 	}
 
 	@Event
