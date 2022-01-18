@@ -423,7 +423,7 @@ public final class EventBus {
 			var it = binding.iterator();
 			while (it.hasNext()) {
 				var handler = it.next();
-				if (handler.getListener() == listener) {
+				if (handler.getListener().equals(listener)) {
 					logger.log(Level.DEBUG, "Unbinding event handler {0}", handler);
 					it.remove();
 				}
@@ -435,7 +435,7 @@ public final class EventBus {
 			var it = binding.iterator();
 			while (it.hasNext()) {
 				var handler = it.next();
-				if (handler.getListener() == listener) {
+				if (handler.getListener().equals(listener)) {
 					logger.log(Level.TRACE, "Removing event handler {0} from cache", handler);
 					it.remove();
 				}
