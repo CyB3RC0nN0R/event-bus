@@ -14,7 +14,7 @@ class SimpleEvent {
 
 	@Override
 	public String toString() {
-		return String.format("SimpleEvent[%d]", counter);
+		return String.format("%s[%d]", getClass().getSimpleName(), counter);
 	}
 
 	void increment() {

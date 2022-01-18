@@ -14,8 +14,7 @@ import org.junit.jupiter.api.*;
 @Priority(150)
 class DispatchTest {
 
-	EventBus	bus;
-	static int	hits;
+	EventBus bus;
 
 	/**
 	 * Constructs an event bus and registers this test instance as an event listener.
@@ -27,8 +26,8 @@ class DispatchTest {
 		bus = new EventBus();
 		bus.registerListener(this);
 		bus.registerListener(SimpleEvent.class, e -> {
-			++hits;
-			assertEquals(4, hits);
+			e.increment();
+			assertEquals(3, e.getCounter());
 		});
 	}
 
@@ -51,29 +50,39 @@ class DispatchTest {
 	 */
 	@Test
 	void testDebugExecutionOrder() {
-		String executionOrder = bus.debugExecutionOrder(SimpleEvent.class);
-		System.out.println(executionOrder);
 		assertEquals(
 			"Event handler execution order for class dev.kske.eventbus.core.SimpleEvent (3 handler(s)):\n"
 				+ "==========================================================================================\n"
-				+ "ReflectiveEventHandler[eventType=class dev.kske.eventbus.core.SimpleEvent, polymorphic=true, priority=200, method=void dev.kske.eventbus.core.DispatchTest.onSimpleEventFirst(), useParameter=false]\n"
-				+ "ReflectiveEventHandler[eventType=class dev.kske.eventbus.core.SimpleEvent, polymorphic=false, priority=150, method=static void dev.kske.eventbus.core.DispatchTest.onSimpleEventSecond(), useParameter=false]\n"
+				+ "ReflectiveEventHandler[eventType=class dev.kske.eventbus.core.SimpleEvent, polymorphic=true, priority=200, method=void dev.kske.eventbus.core.DispatchTest.onSimpleEventFirst(dev.kske.eventbus.core.SimpleEvent), useParameter=true]\n"
+				+ "ReflectiveEventHandler[eventType=class dev.kske.eventbus.core.SimpleEvent, polymorphic=false, priority=150, method=static void dev.kske.eventbus.core.DispatchTest.onSimpleEventSecond(dev.kske.eventbus.core.SimpleEvent), useParameter=true]\n"
 				+ "CallbackEventHandler[eventType=class dev.kske.eventbus.core.SimpleEvent, polymorphic=false, priority=100]\n"
 				+ "==========================================================================================",
-			executionOrder);
+			bus.debugExecutionOrder(SimpleEvent.class));
 	}
 
-	@Event(SimpleEvent.class)
+	/**
+	 * Tests whether the handlers bound to an event type are correct when retrieved from the binding
+	 * cache. On the second call of {@link EventBus#debugExecutionOrder(Class)} the cache is used.
+	 *
+	 * @since 1.3.0
+	 */
+	@Test
+	void testBindingCache() {
+		assertEquals(bus.debugExecutionOrder(SimpleEventSub.class),
+			bus.debugExecutionOrder(SimpleEventSub.class));
+	}
+
+	@Event
 	@Priority(200)
-	void onSimpleEventFirst() {
-		++hits;
-		assertTrue(hits == 1 || hits == 2);
+	void onSimpleEventFirst(SimpleEvent event) {
+		event.increment();
+		assertTrue(event.getCounter() == 1 || event.getCounter() == 2);
 	}
 
-	@Event(SimpleEvent.class)
+	@Event
 	@Polymorphic(false)
-	static void onSimpleEventSecond() {
-		++hits;
-		assertEquals(3, hits);
+	static void onSimpleEventSecond(SimpleEvent event) {
+		event.increment();
+		assertEquals(2, event.getCounter());
 	}
 }

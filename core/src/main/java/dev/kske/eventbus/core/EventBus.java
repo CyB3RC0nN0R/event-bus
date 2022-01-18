@@ -91,6 +91,16 @@ public final class EventBus {
 	private final Map<Class<?>, TreeSet<EventHandler>> bindings = new ConcurrentHashMap<>();
 
 	/**
+	 * A cache mapping an event class to all handlers the event should be dispatched to. This
+	 * includes polymorphic handlers that don't reference the event class explicitly. If an event
+	 * class is not contained inside this cache, the {@link #bindings} have to be traversed manually
+	 * in search of applicable handlers.
+	 *
+	 * @since 1.3.0
+	 */
+	private final Map<Class<?>, TreeSet<EventHandler>> bindingCache = new ConcurrentHashMap<>();
+
+	/**
 	 * Stores all registered event listeners (which declare event handlers) and prevents them from
 	 * being garbage collected.
 	 *
@@ -175,24 +185,29 @@ public final class EventBus {
 	 * Searches for the event handlers bound to an event class. This includes polymorphic handlers
 	 * that are bound to a supertype of the event class.
 	 *
+	 * @implNote If the given event type was requested in the past, the handlers are retrieved from
+	 *           the {@link #bindingCache}. If not, the entire {@link #bindings} are traversed in
+	 *           search of polymorphic handlers compatible with the event type.
 	 * @param eventType the event type to use for the search
 	 * @return a navigable set containing the applicable handlers in descending order of priority
 	 * @since 1.2.0
 	 */
 	private NavigableSet<EventHandler> getHandlersFor(Class<?> eventType) {
+		return bindingCache.computeIfAbsent(eventType, k -> {
 
-		// Get handlers defined for the event class
-		TreeSet<EventHandler> handlers =
-			bindings.getOrDefault(eventType, new TreeSet<>(byPriority));
+			// Get handlers defined for the event class
+			TreeSet<EventHandler> handlers =
+				bindings.getOrDefault(eventType, new TreeSet<>(byPriority));
 
-		// Get polymorphic handlers
-		for (var binding : bindings.entrySet())
-			if (binding.getKey().isAssignableFrom(eventType))
-				for (var handler : binding.getValue())
-					if (handler.isPolymorphic())
-						handlers.add(handler);
+			// Get polymorphic handlers
+			for (var binding : bindings.entrySet())
+				if (binding.getKey().isAssignableFrom(eventType))
+					for (var handler : binding.getValue())
+						if (handler.isPolymorphic())
+							handlers.add(handler);
 
-		return handlers;
+			return handlers;
+		});
 	}
 
 	/**
@@ -369,15 +384,28 @@ public final class EventBus {
 	}
 
 	/**
-	 * Inserts a new handler into the {@link #bindings} map.
+	 * Inserts a new handler into the {@link #bindings} map. Additionally, the handler is placed
+	 * inside the {@link #bindingCache} where applicable.
 	 *
 	 * @param handler the handler to bind
 	 * @since 1.2.0
 	 */
 	private void bindHandler(EventHandler handler) {
-		bindings.putIfAbsent(handler.getEventType(), new TreeSet<>(byPriority));
+
+		// Bind handler
 		logger.log(Level.DEBUG, "Binding event handler {0}", handler);
-		bindings.get(handler.getEventType()).add(handler);
+		bindings.computeIfAbsent(handler.getEventType(), k -> new TreeSet<>(byPriority))
+			.add(handler);
+
+		// Insert handler into cache
+		bindingCache.computeIfAbsent(handler.getEventType(), k -> new TreeSet<>(byPriority))
+			.add(handler);
+
+		// Handler is polymorphic => insert where applicable
+		if (handler.isPolymorphic())
+			for (var binding : bindingCache.entrySet())
+				if (binding.getKey().isAssignableFrom(handler.getEventType()))
+					binding.getValue().add(handler);
 	}
 
 	/**
@@ -395,8 +423,20 @@ public final class EventBus {
 			var it = binding.iterator();
 			while (it.hasNext()) {
 				var handler = it.next();
-				if (handler.getListener() == listener) {
+				if (handler.getListener().equals(listener)) {
 					logger.log(Level.DEBUG, "Unbinding event handler {0}", handler);
+					it.remove();
+				}
+			}
+		}
+
+		// Remove bindings from cache
+		for (var binding : bindingCache.values()) {
+			var it = binding.iterator();
+			while (it.hasNext()) {
+				var handler = it.next();
+				if (handler.getListener().equals(listener)) {
+					logger.log(Level.TRACE, "Removing event handler {0} from cache", handler);
 					it.remove();
 				}
 			}
@@ -414,6 +454,7 @@ public final class EventBus {
 	public void clearListeners() {
 		logger.log(Level.INFO, "Clearing event listeners");
 		bindings.clear();
+		bindingCache.clear();
 		registeredListeners.clear();
 	}
 
