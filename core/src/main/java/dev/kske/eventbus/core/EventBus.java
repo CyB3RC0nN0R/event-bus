@@ -193,9 +193,7 @@ public final class EventBus {
 	 * @since 1.2.0
 	 */
 	private NavigableSet<EventHandler> getHandlersFor(Class<?> eventType) {
-		if (bindingCache.containsKey(eventType)) {
-			return bindingCache.get(eventType);
-		} else {
+		return bindingCache.computeIfAbsent(eventType, k -> {
 
 			// Get handlers defined for the event class
 			TreeSet<EventHandler> handlers =
@@ -208,9 +206,8 @@ public final class EventBus {
 						if (handler.isPolymorphic())
 							handlers.add(handler);
 
-			bindingCache.put(eventType, handlers);
 			return handlers;
-		}
+		});
 	}
 
 	/**
@@ -396,13 +393,13 @@ public final class EventBus {
 	private void bindHandler(EventHandler handler) {
 
 		// Bind handler
-		bindings.putIfAbsent(handler.getEventType(), new TreeSet<>(byPriority));
 		logger.log(Level.DEBUG, "Binding event handler {0}", handler);
-		bindings.get(handler.getEventType()).add(handler);
+		bindings.computeIfAbsent(handler.getEventType(), k -> new TreeSet<>(byPriority))
+			.add(handler);
 
 		// Insert handler into cache
-		bindingCache.putIfAbsent(handler.getEventType(), new TreeSet<>(byPriority));
-		bindingCache.get(handler.getEventType()).add(handler);
+		bindingCache.computeIfAbsent(handler.getEventType(), k -> new TreeSet<>(byPriority))
+			.add(handler);
 
 		// Handler is polymorphic => insert where applicable
 		if (handler.isPolymorphic())
